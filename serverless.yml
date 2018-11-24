@@ -1,10 +1,15 @@
-service: microservice-reference
+service: alexa-skills
 
 provider:
   name: aws
   runtime: nodejs8.10
   profile: serverless-admin
   region: eu-west-2
+  endpointType: REGIONAL
+  stage: ${opt:stage, 'development'}
+  timeout: 15
+  memorySize: 128
+  role: arn:aws:iam::#{AWS::AccountId}:role/WOZiTech_eu_west_2_tfl_lambda_role
 
 # you can define service wide environment variables here
 #  environment:
@@ -30,3 +35,7 @@ functions:
     package:
       include:
         - hello.js
+
+plugins:
+  - serverless-pseudo-parameters
+  - serverless-plugin-include-dependencies

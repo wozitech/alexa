@@ -1,11 +1,11 @@
 {
-  "name": "wozitech-microservice-reference",
+  "name": "wozitech-alexa-skills",
   "version": "1.0.0",
-  "description": "A reference repo for microservices development",
+  "description": "A set of Alexa skills from WOZiTech",
   "main": "src/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wozitech/microservice-reference.git"
+    "url": "git+https://github.com/wozitech/alexa.git"
   },
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --config webpack.config.js --mode production",
@@ -41,6 +41,8 @@
     "eslint-plugin-wyze": "^3.4.0",
     "jest": "^23.6.0",
     "serverless": "^1.32.0",
+    "serverless-plugin-include-dependencies": "^3.1.1",
+    "serverless-pseudo-parameters": "^2.2.0",
     "webpack": "^4.23.1",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.10"
