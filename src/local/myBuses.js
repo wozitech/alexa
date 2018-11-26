@@ -20,4 +20,6 @@ const myBuses = async () => {
     }
 }
 
+process.env.TFL_API_SECRET_ID = 'TFL_API_Portal';
+
 myBuses();
