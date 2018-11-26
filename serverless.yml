@@ -33,18 +33,9 @@ functions:
     tags:
       application: "wit-home"
       company: "WOZiTech"
-  hello:
-    handler: hello.handler
-    events:
-      - http:
-          path: hello
-          method: get
-    tags:
-      endpoint: "hello"
-      module: "hello"
     package:
       include:
-        - hello.js
+        - myBuses.js
 
 plugins:
   - serverless-pseudo-parameters
