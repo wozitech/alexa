@@ -58,8 +58,6 @@ describe('The myBuses handler', () => {
                 process.env.TFL_API_SECRET_ID = tglApiEnv;
                 await handler(theEvent, theContext, mockCallback);
             } catch (err) {
-                console.log("TEST3: caught exception: ", err);
-
                 expect(err).toEqual(new Error('Unexpected TFL API credentials'));
             }
         });
@@ -75,11 +73,11 @@ describe('The myBuses handler', () => {
             });
 
             const returnVal = await handler(theEvent, theContext, mockCallback);
-console.log("DEBUG: returnVal is: ", returnVal)
-
             const theBody = JSON.parse(returnVal.body);
+            
             expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tglApiEnv});
-            expect(JSON.parse(returnVal.body).message).toEqual('Go Serverless v1.0! Your function executed successfully!')
+            expect(theBody.message).toEqual('Go Serverless v1.0! Your function executed successfully!')
+            expect(theBody.api.tfl_api_app_key).toEqual(456);
         });
             
     });
