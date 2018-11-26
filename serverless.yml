@@ -1,15 +1,20 @@
-service: alexa-skills
+service: wozitech-alexa-skills
+
+custom:
+  environment: ${opt:stage, 'development'}
+  bucketName: "${self:custom.environment}-thisbucket"
+  region: ${opt:region, 'eu-west-1'}
 
 provider:
   name: aws
   runtime: nodejs8.10
   profile: serverless-admin
-  region: eu-west-2
+  region: ${self:custom.region}
   endpointType: REGIONAL
   stage: ${opt:stage, 'development'}
   timeout: 15
   memorySize: 128
-  role: arn:aws:iam::#{AWS::AccountId}:role/WOZiTech_eu_west_2_tfl_lambda_role
+  role: arn:aws:iam::#{AWS::AccountId}:role/WOZiTech_eu_west_1_tfl_lambda_role    # note, the name of the role includes the region, but with underscores
 
 # you can define service wide environment variables here
 #  environment:
