@@ -1,6 +1,6 @@
-import { handler } from '../src/hello';
+import { handler } from '../src/myBuses';
 
-describe('The hello handler', () => {
+describe('The myBuses handler', () => {
     afterEach(() => {
         jest.clearAllMocks();
     });

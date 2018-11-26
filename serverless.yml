@@ -28,6 +28,11 @@ package:
     - .git/**
 
 functions:
+  myBuses:
+    handler: myBuses.handler
+    tags:
+      application: "wit-home"
+      company: "WOZiTech"
   hello:
     handler: hello.handler
     events:

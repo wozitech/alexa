@@ -1,7 +1,7 @@
 'use strict';
 
 export const handler = async (event, context, callback) => {
-  console.log("Inside hello.handler")
+  console.log("Inside myBuses.handler")
   return {
     statusCode: 200,
     body: JSON.stringify({
