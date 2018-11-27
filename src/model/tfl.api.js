@@ -6,6 +6,7 @@
 
 import axios from 'axios';
 
+const MAX_NUM_RESULTS = 3;
 const TFL_API_ENDPOINT = 'https://api.tfl.gov.uk';
 const TFL_API_STOP_POINT_ENDPOINT = `${TFL_API_ENDPOINT}/StopPoint`;
 const TO_CRYSTAL_PALACE_STOP_POINT = {
@@ -19,14 +20,17 @@ const TO_CLAPHAM_STOP_POINT = {
 
 export const nextBusTo = async (destination, tflApiDetails) => {
     var apiEndpoint = TFL_API_STOP_POINT_ENDPOINT;
+    var filterLineBy = null;
 
     switch (destination) {
         case 'Clapham':
             apiEndpoint += `/${TO_CLAPHAM_STOP_POINT.stopPointId}/Arrivals`;
+            filterLineBy = 417;
             break;
 
         case 'Crystal Palace':
             apiEndpoint += `/${TO_CRYSTAL_PALACE_STOP_POINT.stopPointId}/Arrivals`;
+            filterLineBy = 417;
             break;
 
         default:
@@ -34,7 +38,7 @@ export const nextBusTo = async (destination, tflApiDetails) => {
     }
 
     var nextBusResponse = {
-        endpoint: apiEndpoint
+        endpoint: apiEndpoint === null ? 'null' : apiEndpoint
     };
 
     if (apiEndpoint) {
@@ -45,31 +49,39 @@ export const nextBusTo = async (destination, tflApiDetails) => {
                     app_id: tflApiDetails.tfl_api_app_id
                 }
             });
-            console.log("DEBUG tfl.api::nextBusTo: RESP: ", apiResponse.status);
+            nextBusResponse.status = apiResponse.status;
+            //console.log("DEBUG tfl.api::nextBusTo: RESP: ", apiResponse);
 
             const nextArrivals = [];
-            apiResponse.data.forEach(thisEntity => {
-                //console.log("DEBUG: this entity: ", thisEntity);
 
-                // must be a bus
-                if (typeof thisEntity.expectedArrival !== 'undefined' &&
-                    typeof thisEntity.lineName  !== 'undefined' &&
-                    typeof thisEntity.modeName  !== 'undefined' &&
-                    thisEntity.lineName === TO_CRYSTAL_PALACE_STOP_POINT.route &&
-                    thisEntity.modeName === 'bus') {
-                        
-                    nextArrivals.push(thisEntity.expectedArrival)
-                }
-            });
+            if ([200,201].includes(apiResponse.status) &&
+                typeof apiResponse.data !== 'undefined') {
+                apiResponse.data.forEach(thisEntity => {
+                    //console.log("DEBUG: this entity: ", thisEntity);
+    
+                    // must be a bus
+                    if (typeof thisEntity.expectedArrival !== 'undefined' &&
+                        typeof thisEntity.lineName  !== 'undefined' &&
+                        typeof thisEntity.modeName  !== 'undefined' &&
+                        thisEntity.lineName === filterLineBy &&
+                        thisEntity.modeName === 'bus') {
+    
+                        nextArrivals.push(thisEntity.expectedArrival)
+                    }
+                });
+    
+                // ensure the set of next arrivials (in ISO date format) are in chronological sequence
+                nextArrivals.sort();
 
-            // ensure the set of next arrivials (in ISO date format) are in chronological sequence
-            nextArrivals.sort();
-            nextBusResponse.arrivals = nextArrivals;
+                // and now ensure there are no more than just three results
+                nextArrivals.splice(3, nextArrivals.length-MAX_NUM_RESULTS);
+                nextBusResponse.arrivals = nextArrivals;
+            }
 
         } catch (err) {
-            console.error("DEBUG tfl.api::nextBusTo: ERR: ", err.response.statusCode, err.response.statusText);
-
-            nextBusResponse.err = err;
+            //console.error("DEBUG: err: ", err);
+            nextBusResponse.status = err.response.statusCode;
+            nextBusResponse.err = err.response.statusText;
         }
     }
 
