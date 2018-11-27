@@ -1,4 +1,4 @@
-import { handler } from '../src/api/myBuses';
+import { handler } from '../../src/api/myBuses';
 import AWS  from 'aws-sdk';
 
 const getSecretValueMock = jest.fn();
@@ -76,9 +76,20 @@ describe('The myBuses handler', () => {
             const theBody = JSON.parse(returnVal.body);
 
             expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tglApiEnv});
-            expect(theBody.message).toEqual('Go Serverless v1.0! Your function executed successfully!')
-            expect(theBody.api.tfl_api_app_key).toEqual(456);
+            expect(theBody.message).toEqual('WOZiTech nextBusto completed.')
         });
             
+    });
+
+    describe('Calling the next bus model', () => {
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+
+        // Need to mock "nextBusTo"
+        // test conditions:
+        //  1. unknown destination - returns success, but the response.err is set
+        //  2. exception (simulates an Axios.get error - could be gateway et al)
+
     });
 });

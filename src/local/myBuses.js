@@ -6,7 +6,9 @@ const myBuses = async () => {
 
         const returnVal = await myHello.handler(
             {
-                param1: "myBus"
+                //destination: "Crystal Palace"
+                //destination: "Clapham"
+                destination: 'Brixton'
             },
             { invokedFunctionArn : 'arn:aws:lambda:eu-west-2:accountid:function:wozitech-alexa-skills-dev-myBuses' },
             (err, data) => {
