@@ -1,11 +1,23 @@
 import { handler } from '../../src/api/myBuses';
 import AWS  from 'aws-sdk';
+import * as TFL from '../../src/model/tfl.api';
 
 const getSecretValueMock = jest.fn();
+const nextBusToMock = jest.fn();
 
 AWS.SecretsManager = jest.fn( () => ({
     getSecretValue : getSecretValueMock
 }));
+
+TFL.nextBusTo = nextBusToMock;
+nextBusToMock.mockReturnValue({
+    endpoint: 'https://mocked/endpoint',
+    arrivals: [
+        '2018-11-27T11:13:33Z',
+        '2018-11-27T09:44:02Z',
+        '2018-11-27T11:19:05Z',
+    ]
+});
 
 describe('The myBuses handler', () => {
     describe('Calling the handler', () => {
@@ -14,10 +26,6 @@ describe('The myBuses handler', () => {
         });
     
         const theEvent = {
-            httpMethod: 'GET',
-            pathParameters : {
-                move: true
-            }
         };
         const theContext = {
             invokedFunctionArn : 'arn:aws:lambda:eu-west-2:accountid:function:wozitech-alexa-skills-dev-myBuses'
@@ -62,9 +70,9 @@ describe('The myBuses handler', () => {
             }
         });
 
-        it('should call the handler', async () => {
-            const tglApiEnv = 'TFL_API_Portal';
-            process.env.TFL_API_SECRET_ID = tglApiEnv;
+        it('should call the handler with success', async () => {
+            const tflApiEnv = 'TFL_API_Portal';
+            process.env.TFL_API_SECRET_ID = tflApiEnv;
 
             getSecretValueMock.mockReturnValue({
                 promise: () => ({
@@ -72,11 +80,16 @@ describe('The myBuses handler', () => {
                 })
             });
 
+            theEvent.destination =  "Croydon";
+
             const returnVal = await handler(theEvent, theContext, mockCallback);
             const theBody = JSON.parse(returnVal.body);
 
-            expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tglApiEnv});
-            expect(theBody.message).toEqual('WOZiTech nextBusto completed.')
+            expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tflApiEnv});
+            expect(theBody.message).toEqual(`WOZiTech nextBusto ${theEvent.destination}`)
+            expect(returnVal.arrivals.length).toEqual(3);
+            expect(returnVal.arrivals[1]).toEqual('2018-11-27T09:44:02Z');
+            expect(returnVal).toMatchSnapshot();
         });
             
     });

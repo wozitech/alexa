@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`The myBuses handler Calling the handler should call the handler with success 1`] = `
+Object {
+  "arrivals": Array [
+    "2018-11-27T11:13:33Z",
+    "2018-11-27T09:44:02Z",
+    "2018-11-27T11:19:05Z",
+  ],
+  "body": "{\\"message\\":\\"WOZiTech nextBusto Croydon\\",\\"event\\":{\\"destination\\":\\"Croydon\\"}}",
+  "statusCode": 200,
+}
+`;

@@ -17,12 +17,13 @@ export const handler = async (event, context, callback) => {
 
       if (typeof event.destination === 'undefined') event.destination = 'Clapham';
 
-      var nextBuses = await nextBusTo(event.destination, tflApiDetails);
+      const nextBuses = await nextBusTo(event.destination, tflApiDetails);
 
       const response = {
         statusCode: 200,
         body: JSON.stringify({
           message: `WOZiTech nextBusto ${event.destination}`,
+          event
         }),
       };
 
