@@ -1,4 +1,4 @@
-import { handler } from '../src/myBuses';
+import { handler } from '../src/api/myBuses';
 import AWS  from 'aws-sdk';
 
 const getSecretValueMock = jest.fn();
@@ -74,7 +74,7 @@ describe('The myBuses handler', () => {
 
             const returnVal = await handler(theEvent, theContext, mockCallback);
             const theBody = JSON.parse(returnVal.body);
-            
+
             expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tglApiEnv});
             expect(theBody.message).toEqual('Go Serverless v1.0! Your function executed successfully!')
             expect(theBody.api.tfl_api_app_key).toEqual(456);

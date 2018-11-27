@@ -6,7 +6,7 @@ if (process.env.NODE_ENV === 'production') externals.push('aws-sdk');
 
  const lambdaFunctions = {
   entry: {
-    myBuses: ['babel-polyfill', './src/myBuses.js']
+    myBuses: ['babel-polyfill', './src/api/myBuses.js']
   },
   output: {
     path: path.resolve(__dirname, './lib'),
