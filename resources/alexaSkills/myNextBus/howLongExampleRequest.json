@@ -1,0 +1,67 @@
+{
+    "event": {
+        "version": "1.0",
+        "session": {
+            "new": true,
+            "sessionId": "amzn1.echo-api.session.4957adca-dc8f-4388-b3bf-3ac9f5e572eb",
+            "application": {
+                "applicationId": "amzn1.ask.skill.2ba78764-0a67-481f-907a-3f7c08287aeb"
+            },
+            "user": {
+                "userId": "amzn1.ask.account.AEGDLGI2QMONKDWOIBWRN7KLRXOYMNXOCN3MCECKPBE7SVWDSIEEVKVF7ZVHHPRBBMSETSBSB4BVV3RJVFEO4JT2TSJVTG7FJAGIS5RP2RTUFT5464HJRBTEI4C6BAMHLW6ZTNQ3QJHXBUKIE7ZX5YGOYBCEJCN57BDV7JAHWBH7ZR67C2TLUGQBW5TVVVVMHHUVYVAPADEAWWQ"
+            }
+        },
+        "context": {
+            "System": {
+                "application": {
+                    "applicationId": "amzn1.ask.skill.2ba78764-0a67-481f-907a-3f7c08287aeb"
+                },
+                "user": {
+                    "userId": "amzn1.ask.account.AEGDLGI2QMONKDWOIBWRN7KLRXOYMNXOCN3MCECKPBE7SVWDSIEEVKVF7ZVHHPRBBMSETSBSB4BVV3RJVFEO4JT2TSJVTG7FJAGIS5RP2RTUFT5464HJRBTEI4C6BAMHLW6ZTNQ3QJHXBUKIE7ZX5YGOYBCEJCN57BDV7JAHWBH7ZR67C2TLUGQBW5TVVVVMHHUVYVAPADEAWWQ"
+                },
+                "device": {
+                    "deviceId": "amzn1.ask.device.AE5J4BFMBNHEMPR6LEU467UGCDM526KOZYDQI4G6AT6DVK3ZMGYIZ47HWWJBMDTASR4AR3MU73RNOOZWIANDZ45AVAA6FWAFC57NJMU6L4JBNV6DDZJ7TIGBHBGFQS6ILEHMJKW53E25KMH4JS3NKQR4FKK5EAQ6HUW7L7AMR63CE23ZOAVRO",
+                    "supportedInterfaces": {}
+                },
+                "apiEndpoint": "https://api.eu.amazonalexa.com",
+                "apiAccessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjEifQ.eyJhdWQiOiJodHRwczovL2FwaS5hbWF6b25hbGV4YS5jb20iLCJpc3MiOiJBbGV4YVNraWxsS2l0Iiwic3ViIjoiYW16bjEuYXNrLnNraWxsLjJiYTc4NzY0LTBhNjctNDgxZi05MDdhLTNmN2MwODI4N2FlYiIsImV4cCI6MTU0MzMzNTk4OSwiaWF0IjoxNTQzMzMyMzg5LCJuYmYiOjE1NDMzMzIzODksInByaXZhdGVDbGFpbXMiOnsiY29uc2VudFRva2VuIjpudWxsLCJkZXZpY2VJZCI6ImFtem4xLmFzay5kZXZpY2UuQUU1SjRCRk1CTkhFTVBSNkxFVTQ2N1VHQ0RNNTI2S09aWURRSTRHNkFUNkRWSzNaTUdZSVo0N0hXV0pCTURUQVNSNEFSM01VNzNSTk9PWldJQU5EWjQ1QVZBQTZGV0FGQzU3TkpNVTZMNEpCTlY2RERaSjdUSUdCSEJHRlFTNklMRUhNSktXNTNFMjVLTUg0SlMzTktRUjRGS0s1RUFRNkhVVzdMN0FNUjYzQ0UyM1pPQVZSTyIsInVzZXJJZCI6ImFtem4xLmFzay5hY2NvdW50LkFFR0RMR0kyUU1PTktEV09JQldSTjdLTFJYT1lNTlhPQ04zTUNFQ0tQQkU3U1ZXRFNJRUVWS1ZGN1pWSEhQUkJCTVNFVFNCU0I0QlZWM1JKVkZFTzRKVDJUU0pWVEc3RkpBR0lTNVJQMlJUVUZUNTQ2NEhKUkJURUk0QzZCQU1ITFc2WlROUTNRSkhYQlVLSUU3Wlg1WUdPWUJDRUpDTjU3QkRWN0pBSFdCSDdaUjY3QzJUTFVHUUJXNVRWVlZWTUhIVVZZVkFQQURFQVdXUSJ9fQ.A6q05_eZwRSu-EHs4d69GYNtH_BNTrCipUKBzgDpPfL16IS_F2lB3UysVMLrlBSVximTvDNFKc8ftpMMUsHFG9OA3PSwcZpevKY90kvtF_29g8Gl9XmKaOh_UqmNdaCR7p-GM6pb3FrrUVlg6x5Ve9x7HgwJQHLhtGIjoHboiBzipUGz1hGrMFw_05y4KCkPlwBC04WoXwSZDQ_nJFMVlIRYvqvg07wmMuicCLvTlJuu0oUkwE_WjOH3J6eN0IoOK6MAEgju2m2k0r8yfPXxjf_dA4KurPun7wpwV0gWiwSRnhaWeN3dhMtqpT0K9VjHPespyBlV_7py82ahO0t8AA"
+            },
+            "Viewport": {
+                "experiences": [
+                    {
+                        "arcMinuteWidth": 246,
+                        "arcMinuteHeight": 144,
+                        "canRotate": false,
+                        "canResize": false
+                    }
+                ],
+                "shape": "RECTANGLE",
+                "pixelWidth": 1024,
+                "pixelHeight": 600,
+                "dpi": 160,
+                "currentPixelWidth": 1024,
+                "currentPixelHeight": 600,
+                "touch": [
+                    "SINGLE"
+                ]
+            }
+        },
+        "request": {
+            "type": "IntentRequest",
+            "requestId": "amzn1.echo-api.request.38765b81-6395-479c-9e72-d4e7f72da4ce",
+            "timestamp": "2018-11-27T15:26:29Z",
+            "locale": "en-GB",
+            "intent": {
+                "name": "howLong",
+                "confirmationStatus": "NONE",
+                "slots": {
+                    "Destination": {
+                        "name": "Destination",
+                        "confirmationStatus": "NONE"
+                    }
+                }
+            },
+            "dialogState": "STARTED"
+        }
+    }
+}

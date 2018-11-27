@@ -1,0 +1,89 @@
+{
+    "message": "WOZiTech nextBusto Clapham",
+    "event": {
+        "version": "1.0",
+        "session": {
+            "new": true,
+            "sessionId": "amzn1.echo-api.session.2f8f91d4-fed4-445f-bd2a-923c27db6072",
+            "application": {
+                "applicationId": "amzn1.ask.skill.2ba78764-0a67-481f-907a-3f7c08287aeb"
+            },
+            "user": {
+                "userId": "amzn1.ask.account.AEGDLGI2QMONKDWOIBWRN7KLRXOYMNXOCN3MCECKPBE7SVWDSIEEVKVF7ZVHHPRBBMSETSBSB4BVV3RJVFEO4JT2TSJVTG7FJAGIS5RP2RTUFT5464HJRBTEI4C6BAMHLW6ZTNQ3QJHXBUKIE7ZX5YGOYBCEJCN57BDV7JAHWBH7ZR67C2TLUGQBW5TVVVVMHHUVYVAPADEAWWQ"
+            }
+        },
+        "context": {
+            "System": {
+                "application": {
+                    "applicationId": "amzn1.ask.skill.2ba78764-0a67-481f-907a-3f7c08287aeb"
+                },
+                "user": {
+                    "userId": "amzn1.ask.account.AEGDLGI2QMONKDWOIBWRN7KLRXOYMNXOCN3MCECKPBE7SVWDSIEEVKVF7ZVHHPRBBMSETSBSB4BVV3RJVFEO4JT2TSJVTG7FJAGIS5RP2RTUFT5464HJRBTEI4C6BAMHLW6ZTNQ3QJHXBUKIE7ZX5YGOYBCEJCN57BDV7JAHWBH7ZR67C2TLUGQBW5TVVVVMHHUVYVAPADEAWWQ"
+                },
+                "device": {
+                    "deviceId": "amzn1.ask.device.AE5J4BFMBNHEMPR6LEU467UGCDM526KOZYDQI4G6AT6DVK3ZMGYIZ47HWWJBMDTASR4AR3MU73RNOOZWIANDZ45AVAA6FWAFC57NJMU6L4JBNV6DDZJ7TIGBHBGFQS6ILEHMJKW53E25KMH4JS3NKQR4FKK5EAQ6HUW7L7AMR63CE23ZOAVRO",
+                    "supportedInterfaces": {}
+                },
+                "apiEndpoint": "https://api.eu.amazonalexa.com",
+                "apiAccessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjEifQ.eyJhdWQiOiJodHRwczovL2FwaS5hbWF6b25hbGV4YS5jb20iLCJpc3MiOiJBbGV4YVNraWxsS2l0Iiwic3ViIjoiYW16bjEuYXNrLnNraWxsLjJiYTc4NzY0LTBhNjctNDgxZi05MDdhLTNmN2MwODI4N2FlYiIsImV4cCI6MTU0MzMzMzcwOSwiaWF0IjoxNTQzMzMwMTA5LCJuYmYiOjE1NDMzMzAxMDksInByaXZhdGVDbGFpbXMiOnsiY29uc2VudFRva2VuIjpudWxsLCJkZXZpY2VJZCI6ImFtem4xLmFzay5kZXZpY2UuQUU1SjRCRk1CTkhFTVBSNkxFVTQ2N1VHQ0RNNTI2S09aWURRSTRHNkFUNkRWSzNaTUdZSVo0N0hXV0pCTURUQVNSNEFSM01VNzNSTk9PWldJQU5EWjQ1QVZBQTZGV0FGQzU3TkpNVTZMNEpCTlY2RERaSjdUSUdCSEJHRlFTNklMRUhNSktXNTNFMjVLTUg0SlMzTktRUjRGS0s1RUFRNkhVVzdMN0FNUjYzQ0UyM1pPQVZSTyIsInVzZXJJZCI6ImFtem4xLmFzay5hY2NvdW50LkFFR0RMR0kyUU1PTktEV09JQldSTjdLTFJYT1lNTlhPQ04zTUNFQ0tQQkU3U1ZXRFNJRUVWS1ZGN1pWSEhQUkJCTVNFVFNCU0I0QlZWM1JKVkZFTzRKVDJUU0pWVEc3RkpBR0lTNVJQMlJUVUZUNTQ2NEhKUkJURUk0QzZCQU1ITFc2WlROUTNRSkhYQlVLSUU3Wlg1WUdPWUJDRUpDTjU3QkRWN0pBSFdCSDdaUjY3QzJUTFVHUUJXNVRWVlZWTUhIVVZZVkFQQURFQVdXUSJ9fQ.dJ9Kqwo_hRfw7kwqje9EpUUrHAy1ilPevpYIAYD_R_IuX-_WFLGu40xkRKs7B2vQAExwk0F3J7Eg6vb4QxEyuFku1yUR4G-NLPnGRIL9ZzjKhonHrTWCTyoOwMFQuHGWkPKLcIT42a-TePlf0HaUL3_1PNuHdig6ehdRCXplCy0qgIY7-AH510ywDJ3YbkbLhx-gVMnLFokrhdYZjcywIBE4qQgZULUSugKzZWDO0s3S_ii6bfxARmgrT-0oC_qXkcYd89zBKmL8X2d25L4aLtn6lC-EIIzp6g6962I92P1BtQ-bjH9jebceoXqTrR-XqQu4XEJbjxclPtxnA_LIsQ"
+            },
+            "Viewport": {
+                "experiences": [
+                    {
+                        "arcMinuteWidth": 246,
+                        "arcMinuteHeight": 144,
+                        "canRotate": false,
+                        "canResize": false
+                    }
+                ],
+                "shape": "RECTANGLE",
+                "pixelWidth": 1024,
+                "pixelHeight": 600,
+                "dpi": 160,
+                "currentPixelWidth": 1024,
+                "currentPixelHeight": 600,
+                "touch": [
+                    "SINGLE"
+                ]
+            }
+        },
+        "request": {
+            "type": "IntentRequest",
+            "requestId": "amzn1.echo-api.request.833e1635-eda6-4fb5-ae8b-f06e0453c135",
+            "timestamp": "2018-11-27T14:48:29Z",
+            "locale": "en-GB",
+            "intent": {
+                "name": "whenIs",
+                "confirmationStatus": "NONE",
+                "slots": {
+                    "Destination": {
+                        "name": "Destination",
+                        "value": "Clapham",
+                        "resolutions": {
+                            "resolutionsPerAuthority": [
+                                {
+                                    "authority": "amzn1.er-authority.echo-sdk.amzn1.ask.skill.2ba78764-0a67-481f-907a-3f7c08287aeb.LIST_OF_DESTINATIONS",
+                                    "status": {
+                                        "code": "ER_SUCCESS_MATCH"
+                                    },
+                                    "values": [
+                                        {
+                                            "value": {
+                                                "name": "Clapham",
+                                                "id": "5a0251c093f8679f79d2fc9d474dd768"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        "confirmationStatus": "NONE",
+                        "source": "USER"
+                    }
+                }
+            },
+            "dialogState": "STARTED"
+        },
+        "destination": "Clapham"
+    }
+}

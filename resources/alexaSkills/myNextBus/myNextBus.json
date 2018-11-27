@@ -1,0 +1,148 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "becks",
+            "intents": [
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "whenIs",
+                    "slots": [
+                        {
+                            "name": "Destination",
+                            "type": "LIST_OF_DESTINATIONS"
+                        }
+                    ],
+                    "samples": [
+                        "when is my next {Destination} bus",
+                        "when will my {Destination} bus get here",
+                        "when is my bus to {Destination} likely to arrive",
+                        "when should I leave for {Destination}",
+                        "when will my bus to {Destination} arrive",
+                        "when will my next bus to {Destination} arrive",
+                        "when is my next bus to {Destination}"
+                    ]
+                },
+                {
+                    "name": "howLong",
+                    "slots": [
+                        {
+                            "name": "Destination",
+                            "type": "LIST_OF_DESTINATIONS"
+                        }
+                    ],
+                    "samples": [
+                        "how long until {Destination} bus",
+                        "how long until I can leave for {Destination}",
+                        "how long until my next bus to {Destination}",
+                        "how long must I wait for the {Destination} bus",
+                        "how much longer for the {Destination} bus",
+                        "how long must I wait before leaving to {Destination}",
+                        "how long till my next bus to {Destination}"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "LIST_OF_DESTINATIONS",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "Clapham"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Brixton"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Streatham"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Croydon"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Norwood Junction"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "dialog": {
+            "intents": [
+                {
+                    "name": "whenIs",
+                    "confirmationRequired": true,
+                    "prompts": {
+                        "confirmation": "Confirm.Intent.423052006003"
+                    },
+                    "slots": [
+                        {
+                            "name": "Destination",
+                            "type": "LIST_OF_DESTINATIONS",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Confirm.Intent.423052006003"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "howLong",
+                    "confirmationRequired": true,
+                    "prompts": {
+                        "confirmation": "Confirm.Intent.423052006003"
+                    },
+                    "slots": [
+                        {
+                            "name": "Destination",
+                            "type": "LIST_OF_DESTINATIONS",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Confirm.Intent.423052006003"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "prompts": [
+            {
+                "id": "Confirm.Intent.423052006003",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "To which destination?"
+                    }
+                ]
+            }
+        ]
+    }
+}
