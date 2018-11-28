@@ -45,7 +45,6 @@ export const handler = async (event, context, callback) => {
   var lambdaRegion = arnList[3];
 
   const parsedRequest = parseRequest(event);
-  console.log("WA DEBUG: parsedRequest: ", parsedRequest);
 
   try {
       if ('undefined' === typeof process.env.TFL_API_SECRET_ID) {
@@ -57,8 +56,6 @@ export const handler = async (event, context, callback) => {
 
       const nextBuses = parsedRequest && parsedRequest.destination ?
         await nextBusTo(parsedRequest.destination, tflApiDetails) : {};
-
-      console.log("WA DEBUG: nextBuses: ", nextBuses);
 
       const response = {
         statusCode: 200,
@@ -82,11 +79,9 @@ export const handler = async (event, context, callback) => {
         const actualResponse = returnScheduledBusesResponse(parsedRequest.destination,
                                                             parsedRequest.intent,
                                                             nextBuses.arrivals);
-        console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
+        //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
 
-        //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", response);
         callback(null, actualResponse);
-        //return actualResponse;
       }
 
       //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", response);
