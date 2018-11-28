@@ -74,6 +74,8 @@ export const handler = async (event, context, callback) => {
         response.arrivals = nextBuses.arrivals;
       }
 
+console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", response);
+
       return response;
   } catch (err) {
       callback(new Error(err));

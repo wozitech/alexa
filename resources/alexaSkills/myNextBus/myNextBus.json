@@ -28,7 +28,11 @@
                     "slots": [
                         {
                             "name": "Destination",
-                            "type": "LIST_OF_DESTINATIONS"
+                            "type": "LIST_OF_DESTINATIONS",
+                            "samples": [
+                                "to {Destination}",
+                                "{Destination}"
+                            ]
                         }
                     ],
                     "samples": [
@@ -46,7 +50,11 @@
                     "slots": [
                         {
                             "name": "Destination",
-                            "type": "LIST_OF_DESTINATIONS"
+                            "type": "LIST_OF_DESTINATIONS",
+                            "samples": [
+                                "to {Destination}",
+                                "{Destination}"
+                            ]
                         }
                     ],
                     "samples": [
@@ -64,6 +72,11 @@
                 {
                     "name": "LIST_OF_DESTINATIONS",
                     "values": [
+                        {
+                            "name": {
+                                "value": "Crystal Palace"
+                            }
+                        },
                         {
                             "name": {
                                 "value": "Clapham"
@@ -109,7 +122,13 @@
                             "elicitationRequired": true,
                             "prompts": {
                                 "elicitation": "Confirm.Intent.423052006003"
-                            }
+                            },
+                            "validations": [
+                                {
+                                    "type": "hasEntityResolutionMatch",
+                                    "prompt": "Slot.Validation.1445897530190.1427925612691.1531545622963"
+                                }
+                            ]
                         }
                     ]
                 },
@@ -127,7 +146,13 @@
                             "elicitationRequired": true,
                             "prompts": {
                                 "elicitation": "Confirm.Intent.423052006003"
-                            }
+                            },
+                            "validations": [
+                                {
+                                    "type": "hasEntityResolutionMatch",
+                                    "prompt": "Slot.Validation.885844913883.869449845389.472556168862"
+                                }
+                            ]
                         }
                     ]
                 }
@@ -139,7 +164,33 @@
                 "variations": [
                     {
                         "type": "PlainText",
+                        "value": "Sorry, but where are you going"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "Where are you going to"
+                    },
+                    {
+                        "type": "PlainText",
                         "value": "To which destination?"
+                    }
+                ]
+            },
+            {
+                "id": "Slot.Validation.1445897530190.1427925612691.1531545622963",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "I only know of the following destinations, {Destination}"
+                    }
+                ]
+            },
+            {
+                "id": "Slot.Validation.885844913883.869449845389.472556168862",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "Sorry, I only know of the following destinations, {Destination}"
                     }
                 ]
             }
