@@ -8,6 +8,11 @@ Object {
     "2018-11-27T11:19:05Z",
   ],
   "body": "{}",
+  "rawRequest": Object {
+    "destination": "Crystal Palace",
+    "intent": "howLong",
+    "message": "WOZiTech Becks with intent (howLong) to Crystal Palace",
+  },
   "request": "WOZiTech Becks with intent (howLong) to Crystal Palace",
   "statusCode": 200,
 }
@@ -21,6 +26,11 @@ Object {
     "2018-11-27T11:19:05Z",
   ],
   "body": "{}",
+  "rawRequest": Object {
+    "destination": "Clapham",
+    "intent": "whenIs",
+    "message": "WOZiTech Becks with intent (whenIs) to Clapham",
+  },
   "request": "WOZiTech Becks with intent (whenIs) to Clapham",
   "statusCode": 200,
 }

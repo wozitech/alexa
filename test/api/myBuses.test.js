@@ -155,6 +155,26 @@ describe('The myBuses handler', () => {
             }
         });
 
+        it ('should silently handle error when the event has no intent', async () => {
+            const tflApiEnv = 'TFL_API_Portal';
+            process.env.TFL_API_SECRET_ID = tflApiEnv;
+
+            getSecretValueMock.mockReturnValue({
+                promise: () => ({
+                    SecretString: "{\"tfl_api_app_id\" : 123, \"tfl_api_app_key\" : 456}"
+                })
+            });
+
+            const returnVal = await handler(theEvent, theContext, mockCallback);
+            //const theBody = JSON.parse(returnVal.body);
+
+            expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tflApiEnv});
+            expect(returnVal.statusCode).toEqual(200);
+            expect(returnVal.arrivals).not.toBeDefined();
+            expect(returnVal.request).toBeNull();
+            expect(returnVal.rawRequest).toBeNull();
+        });
+
         it('should call the handler with success for whenIs intent', async () => {
             const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
@@ -165,12 +185,10 @@ describe('The myBuses handler', () => {
                 })
             });
 
-            theEvent.destination =  "Croydon";
-
             const returnVal = await handler(whenIsAlexaExampleEvent, theContext, mockCallback);
-            console.log("DEBUG: returnVal: ", returnVal)
             //const theBody = JSON.parse(returnVal.body);
 
+            expect(returnVal.statusCode).toEqual(200);
             expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tflApiEnv});
             expect(returnVal.request).toMatch('WOZiTech Becks with intent (whenIs) to Clapham');
             expect(returnVal.arrivals.length).toEqual(3);
@@ -188,17 +206,39 @@ describe('The myBuses handler', () => {
                 })
             });
 
-            theEvent.destination =  "Croydon";
-
             const returnVal = await handler(howLongAlexaExampleEvent, theContext, mockCallback);
-            console.log("DEBUG: returnVal: ", returnVal)
             //const theBody = JSON.parse(returnVal.body);
 
+            expect(returnVal.statusCode).toEqual(200);
             expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tflApiEnv});
             expect(returnVal.request).toMatch('WOZiTech Becks with intent (howLong) to Crystal Palace');
             expect(returnVal.arrivals.length).toEqual(3);
             expect(returnVal.arrivals[1]).toEqual('2018-11-27T09:44:02Z');
             expect(returnVal).toMatchSnapshot();
+        });
+
+        it('should call the handler with success but handle a missing destination', async () => {
+            const tflApiEnv = 'TFL_API_Portal';
+            process.env.TFL_API_SECRET_ID = tflApiEnv;
+
+            getSecretValueMock.mockReturnValue({
+                promise: () => ({
+                    SecretString: "{\"tfl_api_app_id\" : 123, \"tfl_api_app_key\" : 456}"
+                })
+            });
+
+            const noDestinationEvent = howLongAlexaExampleEvent;
+            delete noDestinationEvent.request.intent.slots;
+
+            const returnVal = await handler(howLongAlexaExampleEvent, theContext, mockCallback);
+            //const theBody = JSON.parse(returnVal.body);
+
+            expect(returnVal.statusCode).toEqual(200);
+            expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tflApiEnv});
+            expect(returnVal.request).toMatch('WOZiTech Becks with intent (howLong)');
+            expect(returnVal.arrivals).not.toBeDefined();
+            expect(returnVal.rawRequest.destination).toBeNull();
+            expect(returnVal.rawRequest.intent).toEqual('howLong');
         });
         
     });

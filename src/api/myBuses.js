@@ -23,7 +23,8 @@ const parseRequest = (event) => {
       requestResponse.intent = event.request.intent.name;
       requestResponse.message = `${requestResponse.message} with intent (${requestResponse.intent})`;
 
-      if (typeof event.request.intent.slots.Destination !== 'undefined') {
+      if (typeof event.request.intent.slots !== 'undefined' &&
+          typeof event.request.intent.slots.Destination !== 'undefined') {
         requestResponse.destination = event.request.intent.slots.Destination.value;
         requestResponse.message = `${requestResponse.message} to ${requestResponse.destination}`;
       } else {
@@ -58,6 +59,7 @@ export const handler = async (event, context, callback) => {
       const response = {
         statusCode: 200,
         request: parsedRequest ? parsedRequest.message : null,
+        rawRequest: parsedRequest,
         body: JSON.stringify({
         }),
       };
