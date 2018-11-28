@@ -13,7 +13,7 @@ import { nextBusTo } from '../model/tfl.api';
 //  }
 const parseRequest = (event) => {
   const requestResponse = {
-    message: 'WOZiTech Becks '
+    message: 'WOZiTech Becks'
   };
 
   if (typeof event.request !== 'undefined' &&
@@ -57,7 +57,7 @@ export const handler = async (event, context, callback) => {
 
       const response = {
         statusCode: 200,
-        request: parsedRequest.message,
+        request: parsedRequest ? parsedRequest.message : null,
         body: JSON.stringify({
         }),
       };

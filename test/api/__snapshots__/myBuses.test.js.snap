@@ -1,13 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`The myBuses handler Calling the handler should call the handler with success 1`] = `
+exports[`The myBuses handler Calling the handler should call the handler with success for howLong intent 1`] = `
 Object {
   "arrivals": Array [
     "2018-11-27T11:13:33Z",
     "2018-11-27T09:44:02Z",
     "2018-11-27T11:19:05Z",
   ],
-  "body": "{\\"message\\":\\"WOZiTech nextBusto Croydon\\",\\"event\\":{\\"destination\\":\\"Croydon\\"}}",
+  "body": "{}",
+  "request": "WOZiTech Becks with intent (howLong) to Crystal Palace",
+  "statusCode": 200,
+}
+`;
+
+exports[`The myBuses handler Calling the handler should call the handler with success for whenIs intent 1`] = `
+Object {
+  "arrivals": Array [
+    "2018-11-27T11:13:33Z",
+    "2018-11-27T09:44:02Z",
+    "2018-11-27T11:19:05Z",
+  ],
+  "body": "{}",
+  "request": "WOZiTech Becks with intent (whenIs) to Clapham",
   "statusCode": 200,
 }
 `;

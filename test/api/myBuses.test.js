@@ -5,6 +5,90 @@ import * as TFL from '../../src/model/tfl.api';
 const getSecretValueMock = jest.fn();
 const nextBusToMock = jest.fn();
 
+const whenIsAlexaExampleEvent = {
+    "version": "1.0",
+    "request": {
+        "type": "IntentRequest",
+        "requestId": "amzn1.echo-api.request.833e1635-eda6-4fb5-ae8b-f06e0453c135",
+        "timestamp": "2018-11-27T14:48:29Z",
+        "locale": "en-GB",
+        "intent": {
+            "name": "whenIs",
+            "confirmationStatus": "NONE",
+            "slots": {
+                "Destination": {
+                    "name": "Destination",
+                    "value": "Clapham",
+                    "resolutions": {
+                        "resolutionsPerAuthority": [
+                            {
+                                "authority": "amzn1.er-authority.echo-sdk.amzn1.ask.skill.2ba78764-0a67-481f-907a-3f7c08287aeb.LIST_OF_DESTINATIONS",
+                                "status": {
+                                    "code": "ER_SUCCESS_MATCH"
+                                },
+                                "values": [
+                                    {
+                                        "value": {
+                                            "name": "Clapham",
+                                            "id": "5a0251c093f8679f79d2fc9d474dd768"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "confirmationStatus": "NONE",
+                    "source": "USER"
+                }
+            }
+        },
+        "dialogState": "STARTED"
+    }
+};
+
+// stripped out to just the request
+const howLongAlexaExampleEvent = {
+    "version": "1.0",
+    "request": {
+        "type": "IntentRequest",
+        "requestId": "amzn1.echo-api.request.3d2fe165-8a8f-425d-b286-5dc4a0fa5e4d",
+        "timestamp": "2018-11-27T15:38:54Z",
+        "locale": "en-GB",
+        "intent": {
+            "name": "howLong",
+            "confirmationStatus": "NONE",
+            "slots": {
+                "Destination": {
+                    "name": "Destination",
+                    "value": "Crystal Palace",
+                    "resolutions": {
+                        "resolutionsPerAuthority": [
+                            {
+                                "authority": "amzn1.er-authority.echo-sdk.amzn1.ask.skill.2ba78764-0a67-481f-907a-3f7c08287aeb.LIST_OF_DESTINATIONS",
+                                "status": {
+                                    "code": "ER_SUCCESS_MATCH"
+                                },
+                                "values": [
+                                    {
+                                        "value": {
+                                            "name": "Crystal Palace",
+                                            "id": "5a0251c093f8679f79d2fc9d474dd768"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "confirmationStatus": "NONE",
+                    "source": "USER"
+                }
+            }
+        },
+        "dialogState": "STARTED"
+    }
+};
+
+
 AWS.SecretsManager = jest.fn( () => ({
     getSecretValue : getSecretValueMock
 }));
@@ -26,6 +110,7 @@ describe('The myBuses handler', () => {
         });
     
         const theEvent = {
+
         };
         const theContext = {
             invokedFunctionArn : 'arn:aws:lambda:eu-west-2:accountid:function:wozitech-alexa-skills-dev-myBuses'
@@ -70,7 +155,7 @@ describe('The myBuses handler', () => {
             }
         });
 
-        it('should call the handler with success', async () => {
+        it('should call the handler with success for whenIs intent', async () => {
             const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
 
@@ -82,16 +167,40 @@ describe('The myBuses handler', () => {
 
             theEvent.destination =  "Croydon";
 
-            const returnVal = await handler(theEvent, theContext, mockCallback);
-            const theBody = JSON.parse(returnVal.body);
+            const returnVal = await handler(whenIsAlexaExampleEvent, theContext, mockCallback);
+            console.log("DEBUG: returnVal: ", returnVal)
+            //const theBody = JSON.parse(returnVal.body);
 
             expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tflApiEnv});
-            expect(theBody.message).toEqual(`WOZiTech nextBusto ${theEvent.destination}`)
+            expect(returnVal.request).toMatch('WOZiTech Becks with intent (whenIs) to Clapham');
             expect(returnVal.arrivals.length).toEqual(3);
             expect(returnVal.arrivals[1]).toEqual('2018-11-27T09:44:02Z');
             expect(returnVal).toMatchSnapshot();
         });
-            
+
+        it('should call the handler with success for howLong intent', async () => {
+            const tflApiEnv = 'TFL_API_Portal';
+            process.env.TFL_API_SECRET_ID = tflApiEnv;
+
+            getSecretValueMock.mockReturnValue({
+                promise: () => ({
+                    SecretString: "{\"tfl_api_app_id\" : 123, \"tfl_api_app_key\" : 456}"
+                })
+            });
+
+            theEvent.destination =  "Croydon";
+
+            const returnVal = await handler(howLongAlexaExampleEvent, theContext, mockCallback);
+            console.log("DEBUG: returnVal: ", returnVal)
+            //const theBody = JSON.parse(returnVal.body);
+
+            expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tflApiEnv});
+            expect(returnVal.request).toMatch('WOZiTech Becks with intent (howLong) to Crystal Palace');
+            expect(returnVal.arrivals.length).toEqual(3);
+            expect(returnVal.arrivals[1]).toEqual('2018-11-27T09:44:02Z');
+            expect(returnVal).toMatchSnapshot();
+        });
+        
     });
 
     describe('Calling the next bus model', () => {
