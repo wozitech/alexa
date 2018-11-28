@@ -20,17 +20,17 @@ const TO_CLAPHAM_STOP_POINT = {
 
 export const nextBusTo = async (destination, tflApiDetails) => {
     var apiEndpoint = TFL_API_STOP_POINT_ENDPOINT;
-    var filterLineBy = null;
+    var filterLineBy = null;    // must be a string for filter comparison to work
 
     switch (destination) {
         case 'Clapham':
             apiEndpoint += `/${TO_CLAPHAM_STOP_POINT.stopPointId}/Arrivals`;
-            filterLineBy = 417;
+            filterLineBy = '417';
             break;
 
         case 'Crystal Palace':
             apiEndpoint += `/${TO_CRYSTAL_PALACE_STOP_POINT.stopPointId}/Arrivals`;
-            filterLineBy = 417;
+            filterLineBy = '417';
             break;
 
         default:
