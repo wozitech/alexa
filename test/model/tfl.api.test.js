@@ -10,29 +10,29 @@ axios.get.mockReturnValue({
     status: 200,
     data: [{
             modeName: 'bus',
-            lineName: 417,
+            lineName: '417',
             expectedArrival: '2018-11-27T11:13:33Z',
         },{
             modeName: 'train',
-            lineName: 417,
+            lineName: '417',
             expectedArrival: '2018-11-27T09:44:02Z',
         },{
         },{
             modeName: 'bus',
-            lineName: 219,
+            lineName: '219',
             expectedArrival: '2018-11-27T09:41:17Z',
         },{
         },{
             modeName: 'bus',
-            lineName: 417,
+            lineName: '417',
             expectedArrival: '2018-11-27T09:44:02Z',
         },{
             modeName: 'bus',
-            lineName: 417,
+            lineName: '417',
             expectedArrival: '2018-11-27T11:19:05Z',
         },{
             modeName: 'bus',
-            lineName: 417,
+            lineName: '417',
             expectedArrival: '2018-11-27T11:23:43Z',
         }
     ]
@@ -61,7 +61,7 @@ describe('The TFL API Model', () => {
             expect(expectedResults.endpoint).toEqual('null');
         });
 
-        it('should return handle silently non-success response from TFL API', async () => {
+        it('should handle silently non-success response from TFL API', async () => {
             axios.get.mockReturnValueOnce ({
                 status: 400
             });
@@ -70,7 +70,7 @@ describe('The TFL API Model', () => {
             expect(expectedResults.status).toEqual(400);
         });
 
-        it('should return handle silently success response from TFL API, but empty set of data', async () => {
+        it('should handle silently success response from TFL API, but empty set of data', async () => {
             axios.get.mockReturnValueOnce({
                 status: 200
             });
@@ -79,7 +79,7 @@ describe('The TFL API Model', () => {
             expect(expectedResults.endpoint).toEqual('https://api.tfl.gov.uk/StopPoint/490010452W2/Arrivals');
         });
 
-        it('should return handle success response from TFL API, sorting and limiting data', async () => {
+        it('should return success response from TFL API, sorting and limiting data', async () => {
             const expectedResults = await nextBusTo('Clapham', mockTflApiDetails);
             expect(expectedResults.status).toEqual(200);
             expect(expectedResults.endpoint).toEqual('https://api.tfl.gov.uk/StopPoint/490010452W2/Arrivals');
