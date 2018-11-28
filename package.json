@@ -27,7 +27,8 @@
   "author": "Warren Ayling",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.18.0"
+    "axios": "^0.18.0",
+    "dateformat": "^3.0.3"
   },
   "devDependencies": {
     "aws-sdk": "^2.362.0",

@@ -2,6 +2,7 @@
 
 import { getTflApiSecret } from '../aws/secrets';
 import { nextBusTo } from '../model/tfl.api';
+import { returnUnkwownDestinationResponse, returnScheduledBusesResponse } from '../model/alexaResponse';
 
 // processes the Lambda Event from Alexa Skill, validating the request
 //  and extracting the intent & destination.
@@ -44,6 +45,7 @@ export const handler = async (event, context, callback) => {
   var lambdaRegion = arnList[3];
 
   const parsedRequest = parseRequest(event);
+  console.log("WA DEBUG: parsedRequest: ", parsedRequest);
 
   try {
       if ('undefined' === typeof process.env.TFL_API_SECRET_ID) {
@@ -56,12 +58,12 @@ export const handler = async (event, context, callback) => {
       const nextBuses = parsedRequest && parsedRequest.destination ?
         await nextBusTo(parsedRequest.destination, tflApiDetails) : {};
 
+      console.log("WA DEBUG: nextBuses: ", nextBuses);
+
       const response = {
         statusCode: 200,
         request: parsedRequest ? parsedRequest.message : null,
         rawRequest: parsedRequest,
-        body: JSON.stringify({
-        }),
       };
 
       if ((parsedRequest && parsedRequest.destination === null) ||
@@ -69,14 +71,27 @@ export const handler = async (event, context, callback) => {
         // the destination is unknown
         response.code = 501;
         response.err = 'Destination unknown';
+
+        //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", response);
+        //return response;
       }
+
       if (nextBuses.arrivals) {
         response.arrivals = nextBuses.arrivals;
+
+        const actualResponse = returnScheduledBusesResponse(parsedRequest.destination,
+                                                            parsedRequest.intent,
+                                                            nextBuses.arrivals);
+        console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
+
+        //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", response);
+        callback(null, actualResponse);
+        //return actualResponse;
       }
 
-console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", response);
+      //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", response);
+      //return response;
 
-      return response;
   } catch (err) {
       callback(new Error(err));
   }
