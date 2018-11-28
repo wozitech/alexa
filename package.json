@@ -13,6 +13,7 @@
     "lint": "eslint --ext .js ./src ./test",
     "start": "webpack-dev-server --hot --inline --mode development --port 3000",
     "test": "jest",
+    "coverage": "jest --coverage",
     "package:dev": "npm run-script build && cd lib && sls package -v --stage dev",
     "package:test": "npm run-script build && cd lib && sls package -v --stage test",
     "package:prod": "npm run-script build && cd lib && sls package -v --stage prod",
