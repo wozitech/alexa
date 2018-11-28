@@ -10,7 +10,7 @@ axios.get.mockReturnValue({
     status: 200,
     data: [{
             modeName: 'bus',
-            lineName: '417',
+            lineName: '417',    // lineName is a string!
             expectedArrival: '2018-11-27T11:13:33Z',
         },{
             modeName: 'train',

@@ -25,7 +25,7 @@ export const nextBusTo = async (destination, tflApiDetails) => {
     switch (destination) {
         case 'Clapham':
             apiEndpoint += `/${TO_CLAPHAM_STOP_POINT.stopPointId}/Arrivals`;
-            filterLineBy = '417';
+            filterLineBy = 417;
             break;
 
         case 'Crystal Palace':
@@ -35,6 +35,10 @@ export const nextBusTo = async (destination, tflApiDetails) => {
 
         default:
             apiEndpoint = null;
+    }
+
+    if (typeof filterLineBy === 'number') {
+        filterLineBy = filterLineBy.toString();
     }
 
     var nextBusResponse = {
