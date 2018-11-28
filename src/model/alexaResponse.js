@@ -87,25 +87,37 @@ export const returnScheduledBusesResponse = (destination, intent, arrivals) => {
 // this specifically formats the AlexaSkills text as required of 'whenIs' intent;
 //  namely, returns speach based on time of schedule
 const formatWhenIsResponse = (preamble, arrivals) => {
-    let speachResponse = preamble + 'are, ';
+    let speachResponse = preamble + 'are ';
+    const currentTimestamp = (new Date()).getTime();
 
+    let actualArrrivalIndex = 0;
+    let totalArrivals = arrivals.length-1;
     arrivals.forEach( (thisArrival, index) => {
-        if (index==0) {
-            speachResponse += 'first ';
-        } else if (index < (arrivals.length-1)) {
-            speachResponse += 'then ';
-        } else {
-            speachResponse += 'and finally ';
-        }
+        const thisArrivalDate = new Date(thisArrival);
 
-        //const thisArrivalDate = 
-        const thisArrivalTime = dateFormat(new Date(thisArrival), 'h:MM');
-        speachResponse += thisArrivalTime;
-
-        if (index < (arrivals.length-1)) {
-            speachResponse += ', ';
+        // must be at least one minute (TODO: should be at least the time taken to walk to the stop)
+        const minimumTimeDiff = 60*1000; // 60 second * 1000 milliseconds
+        if ((thisArrivalDate.getTime() - currentTimestamp) > 0) {
+            if (actualArrrivalIndex==0) {
+                speachResponse += 'first ';
+            } else if (actualArrrivalIndex < totalArrivals) {
+                speachResponse += 'then ';
+            } else {
+                speachResponse += 'and finally ';
+            }
+    
+            //const thisArrivalDate = 
+            const thisArrivalTime = dateFormat(new Date(thisArrival), 'h:MM');
+            speachResponse += thisArrivalTime;
+            actualArrrivalIndex++;
+    
+            if (index < (arrivals.length-1)) {
+                speachResponse += ', ';
+            } else {
+                speachResponse += '.';
+            }
         } else {
-            speachResponse += '.';
+            //totalArrivals--;
         }
     });
 
@@ -118,21 +130,25 @@ const formatHowToResponse = (preamble, arrivals) => {
     let speachResponse = preamble + 'in ';
     const currentTimestamp = (new Date()).getTime();
 
+    let actualArrrivalIndex = 0;
+    let totalArrivals = arrivals.length-1;
     arrivals.forEach( (thisArrival, index) => {
         const thisArrivalDate = new Date(thisArrival);
         const timeInMinutes = Math.floor((thisArrivalDate.getTime() - currentTimestamp) / 1000 / 60);
         
         if (timeInMinutes > 1) {
-            if (index==0) {
+            if (actualArrrivalIndex==0) {
                 speachResponse += '';
-            } else if (index < (arrivals.length-1)) {
+            } else if (actualArrrivalIndex < totalArrivals) {
                 speachResponse += ', then ';
             } else {
                 speachResponse += ' and finally ';
             }
-    
-    
+
             speachResponse += `${timeInMinutes} minutes`;
+            actualArrrivalIndex++;
+        } else {
+            //totalArrivals--;
         }
     });
 

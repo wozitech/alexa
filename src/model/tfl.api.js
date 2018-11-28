@@ -22,13 +22,13 @@ export const nextBusTo = async (destination, tflApiDetails) => {
     var apiEndpoint = TFL_API_STOP_POINT_ENDPOINT;
     var filterLineBy = null;    // must be a string for filter comparison to work
 
-    switch (destination) {
-        case 'Clapham':
+    switch (destination.toLowerCase()) {
+        case 'clapham':
             apiEndpoint += `/${TO_CLAPHAM_STOP_POINT.stopPointId}/Arrivals`;
             filterLineBy = 417;
             break;
 
-        case 'Crystal Palace':
+        case 'crystal palace':
             apiEndpoint += `/${TO_CRYSTAL_PALACE_STOP_POINT.stopPointId}/Arrivals`;
             filterLineBy = '417';
             break;
