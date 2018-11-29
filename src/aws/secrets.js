@@ -14,14 +14,12 @@ export const getTflApiSecret = async (lambdaRegion, secretKey) => {
           typeof tflApiDetails.tfl_api_app_id == 'undefined' ||
           typeof tflApiDetails.tfl_api_app_key == 'undefined') {
 
-        console.log("WA DEBUG: above to through unexpected exception");
         throw new Error('Unexpected TFL API credentials');
       }
 
       return tflApiDetails;
     } else {
 
-      console.log("WA DEBUG: above to through unknwon exception");
       throw new Error('Unknown TFL API');
     }
 
