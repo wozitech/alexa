@@ -60,6 +60,7 @@ export const nextBusTo = async (destination, tflApiDetails) => {
                 }
             });
             nextBusResponse.status = apiResponse.status;
+            nextBusResponse.route = filterLineBy;
             //console.log("DEBUG tfl.api::nextBusTo: RESP: ", apiResponse);
 
             const nextArrivals = [];

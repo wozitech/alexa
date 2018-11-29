@@ -76,7 +76,7 @@ export const handler = async (event, context, callback) => {
 
       nextBuses = parsedRequest && parsedRequest.destination ?
         await nextBusTo(parsedRequest.destination, tflApiDetails) : {};
-      console.log("WA DEBUG logging in Lambda:CloudWatch: nextBuses: ", nextBuses);
+      //console.log("WA DEBUG logging in Lambda:CloudWatch: nextBuses: ", nextBuses);
 
     } catch (err) {
       // unable to get bus information
@@ -92,7 +92,6 @@ export const handler = async (event, context, callback) => {
       callback(null, actualResponse);
     }
 
-    console.log("WA DDEBUG: got here: ", parsedRequest)
     // intent and destination both given, the destination is known by our TFL API,
     //  but the actual TFL API returned an error
     if (! [200,201].includes(nextBuses.status)) {
@@ -105,6 +104,7 @@ export const handler = async (event, context, callback) => {
     if (nextBuses.arrivals) {
       const actualResponse = returnScheduledBusesResponse(parsedRequest.destination,
                                                           parsedRequest.intent,
+                                                          nextBuses.route,
                                                           nextBuses.arrivals);
       //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
 

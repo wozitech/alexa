@@ -43,6 +43,27 @@ import dateFormat from 'dateformat';
   }
  */
 
+const formatBusNumberSpeech = (busNumber) => {
+    if (typeof busNumber === 'string') {
+        busNumber = parseInt(busNumber, 10);
+    }
+
+    if (busNumber > 100) {
+        // bus number must be spelt out
+        let modifiedNumber = '';
+        busNumber.toString().split('').forEach((thisChar, index) => {
+            if (index == 0) {
+                modifiedNumber += thisChar;
+            } else {
+                modifiedNumber += ` ${thisChar}`;
+            }
+        });
+        return modifiedNumber;
+    } else {
+        return `Number ${busNumber}`;
+    }
+}
+
 const formatSessionResponse = (session) => {
     if (typeof session !== 'undefined') {
         return {
@@ -165,7 +186,7 @@ export const returnSkillOpenedResponse = (session) => {
 
 // this returns an AlexaSkills response, choosing between the more specific of whenIs (time) or howLong (duration) speach
 // TODO: multiple language support
-export const returnScheduledBusesResponse = (destination, intent, arrivals) => {
+export const returnScheduledBusesResponse = (destination, intent, route, arrivals) => {
     const skillResponse = {
       version: "1.0",
       response: {
@@ -183,7 +204,10 @@ export const returnScheduledBusesResponse = (destination, intent, arrivals) => {
     let fullSpeach = '';
     const HOW_LONG_INTENT = 'howLong';
     const WHEN_IS_INTENT = 'whenIs';
-    const preambleSpeach = `The next bus arrivals for ${destination} `;
+
+    const spokenBusRoute = formatBusNumberSpeech(route);
+
+    const preambleSpeach = `The next arrivals for the, ${spokenBusRoute} bus, going to ${destination}, are`;
 
     switch (intent) {
         case WHEN_IS_INTENT:
@@ -202,7 +226,7 @@ export const returnScheduledBusesResponse = (destination, intent, arrivals) => {
 // this specifically formats the AlexaSkills text as required of 'whenIs' intent;
 //  namely, returns speach based on time of schedule
 const formatWhenIsResponse = (preamble, arrivals) => {
-    let speachResponse = preamble + 'are ';
+    let speachResponse = preamble + ' ';
     const currentTimestamp = (new Date()).getTime();
 
     let actualArrrivalIndex = 0;
@@ -216,9 +240,9 @@ const formatWhenIsResponse = (preamble, arrivals) => {
             if (actualArrrivalIndex==0) {
                 speachResponse += 'first ';
             } else if (actualArrrivalIndex < totalArrivals) {
-                speachResponse += 'then ';
+                speachResponse += ', then ';
             } else {
-                speachResponse += 'and finally ';
+                speachResponse += ' and finally ';
             }
     
             //const thisArrivalDate = 
@@ -226,11 +250,6 @@ const formatWhenIsResponse = (preamble, arrivals) => {
             speachResponse += thisArrivalTime;
             actualArrrivalIndex++;
     
-            if (index < (arrivals.length-1)) {
-                speachResponse += ', ';
-            } else {
-                speachResponse += '.';
-            }
         } else {
             //totalArrivals--;
         }
@@ -242,7 +261,7 @@ const formatWhenIsResponse = (preamble, arrivals) => {
 // this specifically formats the AlexaSkills text as required of 'howLong' intent;
 //  namely, returns speach based on duration from now
 const formatHowToResponse = (preamble, arrivals) => {
-    let speachResponse = preamble + 'in ';
+    let speachResponse = preamble + ' in ';
     const currentTimestamp = (new Date()).getTime();
 
     let actualArrrivalIndex = 0;
