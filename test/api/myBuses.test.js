@@ -179,30 +179,9 @@ describe('The myBuses handler', () => {
             }
         });
 
-        it ('should return exception when the fetched secret is not as expected', async () => {
-            getSecretValueMock.mockReturnValueOnce({
-                promise: () => ({
-                    SecretString: "{\"empty\" : true}"
-                })
-            });
-            try {
-                const tglApiEnv = 'TFL_API_Portal';
-                process.env.TFL_API_SECRET_ID = tglApiEnv;
-                await handler(theEvent, theContext, mockCallback);
-            } catch (err) {
-                expect(err).toEqual(new Error('Unexpected TFL API credentials'));
-            }
-        });
-
         it ('should silently handle error when the event has no intent', async () => {
             const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
-
-            getSecretValueMock.mockReturnValue({
-                promise: () => ({
-                    SecretString: "{\"tfl_api_app_id\" : 123, \"tfl_api_app_key\" : 456}"
-                })
-            });
 
             const returnVal = await handler(theEvent, theContext, (err, data) => {
                 // trapping of intent comes before any TFL API lookup
@@ -270,17 +249,10 @@ describe('The myBuses handler', () => {
             const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
 
-            getSecretValueMock.mockReturnValue({
-                promise: () => ({
-                    SecretString: "{\"tfl_api_app_id\" : 123, \"tfl_api_app_key\" : 456}"
-                })
-            });
-
             const noDestinationEvent = howLongAlexaExampleEvent;
             delete noDestinationEvent.request.intent.slots;
 
-            const returnVal = await handler(noDestinationEvent, theContext, (err, data) => {
-                // trapping of intent comes before any TFL API lookup
+            const returnVal = await handler(noDestinationEvent, theContext, (err, data) => {                // trapping of intent comes before any TFL API lookup
                 expect(getTflApiSecretMock).not.toHaveBeenCalled();
 
                 // expecting a proper format AlexaSkills response
