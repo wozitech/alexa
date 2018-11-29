@@ -63,6 +63,8 @@ export const handler = async (event, context, callback) => {
       const actualResponse = returnNoDestinationResponse(event.session);
       //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
       callback(null, actualResponse);
+
+      return;
     }
     
     let nextBuses = null;

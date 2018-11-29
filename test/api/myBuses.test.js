@@ -1,12 +1,65 @@
 import { handler } from '../../src/api/myBuses';
 import AWS  from 'aws-sdk';
 import * as TFL from '../../src/model/tfl.api';
+import * as MySecrets from '../../src/aws/secrets';
 
 const getSecretValueMock = jest.fn();
 const nextBusToMock = jest.fn();
+const getTflApiSecretMock = jest.fn();
+
+// the Alexa responses are randomised to offer a more personal touch, but this makes
+//  unit testing somewhat difficult.
+// Overriding the global Math.random function to always return the same result,
+//  and hence predictable AlexaSkill responses.
+const mockMath = Object.create(global.Math);
+mockMath.random = () => 0.999;   // always returns the last
+global.Math = mockMath;
+
+AWS.SecretsManager = jest.fn( () => ({
+    getSecretValue : getSecretValueMock
+}));
+
+
+
+const nowTime = new Date();
+const nextTime = new Date();
+const lastTime = new Date();
+nowTime.setMinutes(nowTime.getMinutes() + 2);
+nextTime.setMinutes(nextTime.getMinutes() + 5);
+lastTime.setMinutes(lastTime.getMinutes() + 10);
+
+TFL.nextBusTo = nextBusToMock;
+nextBusToMock.mockReturnValue({
+    status: 200,
+    route: 417,
+    endpoint: 'https://mocked/endpoint',
+    arrivals: [
+        nowTime.toISOString(),
+        nextTime.toISOString(),
+        lastTime.toISOString(),
+    ]
+});
+
+MySecrets.getTflApiSecret = getTflApiSecretMock;
+getTflApiSecretMock.mockReturnValue({
+    tfl_api_app_id : 123,
+    tfl_api_app_key : 456
+});
+
+const alexaSkillDefaultSession = {
+    "new": true,
+    "sessionId": "amzn1.echo-api.session.2f8f91d4-fed4-445f-bd2a-923c27db6072",
+    "application": {
+        "applicationId": "amzn1.ask.skill.2ba78764-0a67-481f-907a-3f7c08287aeb"
+    },
+    "user": {
+        "userId": "amzn1.ask.account.AEGDLGI2QMONKDWOIBWRN7KLRXOYMNXOCN3MCECKPBE7SVWDSIEEVKVF7ZVHHPRBBMSETSBSB4BVV3RJVFEO4JT2TSJVTG7FJAGIS5RP2RTUFT5464HJRBTEI4C6BAMHLW6ZTNQ3QJHXBUKIE7ZX5YGOYBCEJCN57BDV7JAHWBH7ZR67C2TLUGQBW5TVVVVMHHUVYVAPADEAWWQ"
+    }
+};
 
 const whenIsAlexaExampleEvent = {
     "version": "1.0",
+    "session" : alexaSkillDefaultSession,
     "request": {
         "type": "IntentRequest",
         "requestId": "amzn1.echo-api.request.833e1635-eda6-4fb5-ae8b-f06e0453c135",
@@ -49,6 +102,7 @@ const whenIsAlexaExampleEvent = {
 // stripped out to just the request
 const howLongAlexaExampleEvent = {
     "version": "1.0",
+    "session" : alexaSkillDefaultSession,
     "request": {
         "type": "IntentRequest",
         "requestId": "amzn1.echo-api.request.3d2fe165-8a8f-425d-b286-5dc4a0fa5e4d",
@@ -88,21 +142,6 @@ const howLongAlexaExampleEvent = {
     }
 };
 
-
-AWS.SecretsManager = jest.fn( () => ({
-    getSecretValue : getSecretValueMock
-}));
-
-TFL.nextBusTo = nextBusToMock;
-nextBusToMock.mockReturnValue({
-    endpoint: 'https://mocked/endpoint',
-    arrivals: [
-        '2018-11-27T11:13:33Z',
-        '2018-11-27T09:44:02Z',
-        '2018-11-27T11:19:05Z',
-    ]
-});
-
 describe('The myBuses handler', () => {
     describe('Calling the handler', () => {
         afterEach(() => {
@@ -110,10 +149,10 @@ describe('The myBuses handler', () => {
         });
     
         const theEvent = {
-
+            "session": alexaSkillDefaultSession
         };
         const theContext = {
-            invokedFunctionArn : 'arn:aws:lambda:eu-west-2:accountid:function:wozitech-alexa-skills-dev-myBuses'
+            invokedFunctionArn : 'arn:aws:lambda:eu-west-1:accountid:function:wozitech-alexa-skills-dev-myBuses'
         };
         const mockCallback = jest.fn();
 
@@ -165,56 +204,66 @@ describe('The myBuses handler', () => {
                 })
             });
 
-            const returnVal = await handler(theEvent, theContext, mockCallback);
-            //const theBody = JSON.parse(returnVal.body);
+            const returnVal = await handler(theEvent, theContext, (err, data) => {
+                // trapping of intent comes before any TFL API lookup
+                expect(getTflApiSecretMock).not.toHaveBeenCalled();
 
-            expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tflApiEnv});
-            expect(returnVal.statusCode).toEqual(200);
-            expect(returnVal.arrivals).not.toBeDefined();
-            expect(returnVal.request).toBeNull();
-            expect(returnVal.rawRequest).toBeNull();
+                // expecting a proper format AlexaSkills response
+                expect(data.version).toEqual('1.0');
+
+                // speech is returned
+                expect(data.response.outputSpeech).toBeDefined();
+                expect(data.response.outputSpeech.type).toEqual('PlainText');
+                expect(data.response.outputSpeech.text).toEqual('Where do you need to be?');
+
+                // with no intent, we assume the skill is opening, so a conversation will incur
+                expect(data.response.shouldEndSession).toEqual(false);
+                expect(data.sessionAttributes).toEqual({
+                    sessionId: alexaSkillDefaultSession.sessionId,
+                    application: alexaSkillDefaultSession.application,
+                    user: alexaSkillDefaultSession.user
+                });
+            });
         });
 
         it('should call the handler with success for whenIs intent', async () => {
             const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
 
-            getSecretValueMock.mockReturnValue({
-                promise: () => ({
-                    SecretString: "{\"tfl_api_app_id\" : 123, \"tfl_api_app_key\" : 456}"
-                })
+            const returnVal = await handler(whenIsAlexaExampleEvent, theContext, (err, data) => {
+                expect(getTflApiSecretMock).toHaveBeenCalledWith('eu-west-1',tflApiEnv);
+
+                // expecting a proper format AlexaSkills response
+                expect(data.version).toEqual('1.0');
+
+                expect(data.response.outputSpeech).toBeDefined();
+                expect(data.response.outputSpeech.type).toEqual('PlainText');
+                expect(data.response.outputSpeech.text).toMatch(/^The next arrivals for the/);
+
+                // we satisfy the intent in full, end of dialog
+                expect(data.response.shouldEndSession).toEqual(true);
+                expect(data.sessionAttributes).toEqual({});
             });
-
-            const returnVal = await handler(whenIsAlexaExampleEvent, theContext, mockCallback);
-            //const theBody = JSON.parse(returnVal.body);
-
-            expect(returnVal.statusCode).toEqual(200);
-            expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tflApiEnv});
-            expect(returnVal.request).toMatch('WOZiTech Becks with intent (whenIs) to Clapham');
-            expect(returnVal.arrivals.length).toEqual(3);
-            expect(returnVal.arrivals[1]).toEqual('2018-11-27T09:44:02Z');
-            expect(returnVal).toMatchSnapshot();
         });
 
         it('should call the handler with success for howLong intent', async () => {
             const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
 
-            getSecretValueMock.mockReturnValue({
-                promise: () => ({
-                    SecretString: "{\"tfl_api_app_id\" : 123, \"tfl_api_app_key\" : 456}"
-                })
+            const returnVal = await handler(howLongAlexaExampleEvent, theContext, (err, data) => {
+                expect(getTflApiSecretMock).toHaveBeenCalledWith('eu-west-1',tflApiEnv);
+
+                // expecting a proper format AlexaSkills response
+                expect(data.version).toEqual('1.0');
+
+                expect(data.response.outputSpeech).toBeDefined();
+                expect(data.response.outputSpeech.type).toEqual('PlainText');
+                expect(data.response.outputSpeech.text).toMatch(/^The next arrivals for the/);
+
+                // we satisfy the intent in full, end of dialog
+                expect(data.response.shouldEndSession).toEqual(true);
+                expect(data.sessionAttributes).toEqual({});
             });
-
-            const returnVal = await handler(howLongAlexaExampleEvent, theContext, mockCallback);
-            //const theBody = JSON.parse(returnVal.body);
-
-            expect(returnVal.statusCode).toEqual(200);
-            expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tflApiEnv});
-            expect(returnVal.request).toMatch('WOZiTech Becks with intent (howLong) to Crystal Palace');
-            expect(returnVal.arrivals.length).toEqual(3);
-            expect(returnVal.arrivals[1]).toEqual('2018-11-27T09:44:02Z');
-            expect(returnVal).toMatchSnapshot();
         });
 
         it('should call the handler with success but handle a missing destination', async () => {
@@ -230,28 +279,27 @@ describe('The myBuses handler', () => {
             const noDestinationEvent = howLongAlexaExampleEvent;
             delete noDestinationEvent.request.intent.slots;
 
-            const returnVal = await handler(howLongAlexaExampleEvent, theContext, mockCallback);
-            //const theBody = JSON.parse(returnVal.body);
+            const returnVal = await handler(noDestinationEvent, theContext, (err, data) => {
+                // trapping of intent comes before any TFL API lookup
+                expect(getTflApiSecretMock).not.toHaveBeenCalled();
 
-            expect(returnVal.statusCode).toEqual(200);
-            expect(getSecretValueMock).toHaveBeenCalledWith({SecretId: tflApiEnv});
-            expect(returnVal.request).toMatch('WOZiTech Becks with intent (howLong)');
-            expect(returnVal.arrivals).not.toBeDefined();
-            expect(returnVal.rawRequest.destination).toBeNull();
-            expect(returnVal.rawRequest.intent).toEqual('howLong');
+                // expecting a proper format AlexaSkills response
+                expect(data.version).toEqual('1.0');
+
+                expect(data.response.outputSpeech).toBeDefined();
+                expect(data.response.outputSpeech.type).toEqual('PlainText');
+                expect(data.response.outputSpeech.text).toEqual('Missing destination, please tell me where you want to go');
+
+                // we need to prompt for the destination, so this is not over
+                expect(data.response.shouldEndSession).toEqual(false);
+                expect(data.sessionAttributes).toEqual({
+                    sessionId: alexaSkillDefaultSession.sessionId,
+                    application: alexaSkillDefaultSession.application,
+                    user: alexaSkillDefaultSession.user
+                });
+            });
         });
         
     });
 
-    describe('Calling the next bus model', () => {
-        afterEach(() => {
-            jest.clearAllMocks();
-        });
-
-        // Need to mock "nextBusTo"
-        // test conditions:
-        //  1. unknown destination - returns success, but the response.err is set
-        //  2. exception (simulates an Axios.get error - could be gateway et al)
-
-    });
 });
