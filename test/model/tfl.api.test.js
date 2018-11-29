@@ -96,8 +96,8 @@ describe('The TFL API Model', () => {
                     }
                 };
             });
-            const expectedResults = await nextBusTo('Crystal Palace', mockTflApiDetails);
-            expect(expectedResults.endpoint).toEqual('https://api.tfl.gov.uk/StopPoint/490013686E/Arrivals');
+            const expectedResults = await nextBusTo('Mythical Land', mockTflApiDetails);
+            expect(expectedResults.endpoint).toEqual('https://api.tfl.gov.uk/StopPoint/10039549696093/AAAAArrivals');
             expect(expectedResults.status).toEqual(401);
             expect(expectedResults.err).toEqual('axios error');
         });
