@@ -48,7 +48,8 @@ export const nextBusTo = async (destination, tflApiDetails) => {
     }
 
     var nextBusResponse = {
-        endpoint: apiEndpoint === null ? 'null' : apiEndpoint
+        endpoint: apiEndpoint === null ? 'null' : apiEndpoint,
+        status: 200
     };
 
     if (apiEndpoint) {

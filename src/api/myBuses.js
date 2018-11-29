@@ -24,7 +24,7 @@ const parseRequest = (event) => {
   const expectedIntents = [
     "whenIs",
     "howLong"
-  ]
+  ];
 
   if (typeof event.request !== 'undefined' &&
       typeof event.request.intent !== 'undefined' &&
@@ -55,8 +55,13 @@ export const handler = async (event, context, callback) => {
   var arnList = (context.invokedFunctionArn).split(":");
   var lambdaRegion = arnList[3];
 
+  if ('undefined' === typeof process.env.TFL_API_SECRET_ID) {
+    throw new Error('Missing env variable for TFL_API_SECRET_ID');
+  }
+
   // 'parsedRequest' returns null if not intent
   const parsedRequest = parseRequest(event);
+
   if (parsedRequest) {
     // no destination given in intent
     if (parsedRequest && parsedRequest.destination === null) {
@@ -69,22 +74,19 @@ export const handler = async (event, context, callback) => {
     
     let nextBuses = null;
     try {
-      if ('undefined' === typeof process.env.TFL_API_SECRET_ID) {
-        throw new Error('Missing env variable for TFL_API_SECRET_ID');
-      }
-
       var tflApiDetails = await getTflApiSecret(lambdaRegion,
                                                 process.env.TFL_API_SECRET_ID);
 
-      nextBuses = parsedRequest && parsedRequest.destination ?
-        await nextBusTo(parsedRequest.destination, tflApiDetails) : {};
+      nextBuses = await nextBusTo(parsedRequest.destination, tflApiDetails);
       //console.log("WA DEBUG logging in Lambda:CloudWatch: nextBuses: ", nextBuses);
 
     } catch (err) {
       // unable to get bus information
-      console.error(`Parsed Request: ${parsedRequest}, errored: `, err);
+      //console.error(`Parsed Request: ${parsedRequest}, errored: `, err);
 
       callback(null, returnUnableToGetBusInfoResponse());
+
+      return;
     }
 
     // destination given in intent, but is unknown to our TFL API
