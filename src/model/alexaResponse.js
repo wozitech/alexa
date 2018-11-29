@@ -115,10 +115,10 @@ export const returnNoDestinationResponse = (session) => {
     const responses = [
         'Sorry, I am unable to determine your destination',
         'I am unable to determine your destination',
-        'Sorry, I don\'t know how to determine your destination',
-        'I don\'t know how to determine your destination',
-        'Sorry, I don\'t have that  destination',
-        'I don\'t have that destination',
+        'Sorry, I can\'t determine your destination',
+        'I can\'t determine your destination',
+        'Sorry, you have not said your destination',
+        'You have not said your destination',
         'Sorry, I don\'t have your destination',
         'I don\'t have your destination',
         'Missing destination, please tell me where you want to go'

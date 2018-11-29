@@ -13,6 +13,17 @@ const missingIntentExampleEvent = {
             "userId": "amzn1.ask.account.AEGDLGI2QMONKDWOIBWRN7KLRXOYMNXOCN3MCECKPBE7SVWDSIEEVKVF7ZVHHPRBBMSETSBSB4BVV3RJVFEO4JT2TSJVTG7FJAGIS5RP2RTUFT5464HJRBTEI4C6BAMHLW6ZTNQ3QJHXBUKIE7ZX5YGOYBCEJCN57BDV7JAHWBH7ZR67C2TLUGQBW5TVVVVMHHUVYVAPADEAWWQ"
         }
     },
+    "request": {
+		"type": "IntentRequest",
+		"requestId": "amzn1.echo-api.request.1485557e-4bbe-408b-96c9-cef3f780a519",
+		"timestamp": "2018-11-29T09:28:31Z",
+		"locale": "en-GB",
+		"intent": {
+			"name": "AMAZON.FallbackIntent",
+			"confirmationStatus": "NONE"
+		},
+		"dialogState": "STARTED"
+	}
 };
 
 const myBuses = async () => {

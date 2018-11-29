@@ -21,9 +21,15 @@ const parseRequest = (event) => {
     message: 'WOZiTech Becks'
   };
 
+  const expectedIntents = [
+    "whenIs",
+    "howLong"
+  ]
+
   if (typeof event.request !== 'undefined' &&
       typeof event.request.intent !== 'undefined' &&
-      typeof event.request.intent.name !== 'undefined') {
+      typeof event.request.intent.name !== 'undefined' &&
+      expectedIntents.includes(event.request.intent.name)) {
 
       requestResponse.intent = event.request.intent.name;
       requestResponse.message = `${requestResponse.message} with intent (${requestResponse.intent})`;
