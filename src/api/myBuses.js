@@ -2,7 +2,11 @@
 
 import { getTflApiSecret } from '../aws/secrets';
 import { nextBusTo } from '../model/tfl.api';
-import { returnUnkwownDestinationResponse, returnScheduledBusesResponse } from '../model/alexaResponse';
+import { returnUnknownDestinationResponse,
+         returnSkillOpenedResponse,
+         returnNoDestinationResponse,
+         returnUnableToGetBusInfoResponse,
+         returnScheduledBusesResponse } from '../model/alexaResponse';
 
 // processes the Lambda Event from Alexa Skill, validating the request
 //  and extracting the intent & destination.
@@ -25,7 +29,8 @@ const parseRequest = (event) => {
       requestResponse.message = `${requestResponse.message} with intent (${requestResponse.intent})`;
 
       if (typeof event.request.intent.slots !== 'undefined' &&
-          typeof event.request.intent.slots.Destination !== 'undefined') {
+          typeof event.request.intent.slots.Destination !== 'undefined' &&
+          typeof event.request.intent.slots.Destination.value === 'string') {
         requestResponse.destination = event.request.intent.slots.Destination.value;
         requestResponse.message = `${requestResponse.message} to ${requestResponse.destination}`;
       } else {
@@ -44,9 +49,18 @@ export const handler = async (event, context, callback) => {
   var arnList = (context.invokedFunctionArn).split(":");
   var lambdaRegion = arnList[3];
 
+  // 'parsedRequest' returns null if not intent
   const parsedRequest = parseRequest(event);
-
-  try {
+  if (parsedRequest) {
+    // no destination given in intent
+    if (parsedRequest && parsedRequest.destination === null) {
+      const actualResponse = returnNoDestinationResponse(event.session);
+      //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
+      callback(null, actualResponse);
+    }
+    
+    let nextBuses = null;
+    try {
       if ('undefined' === typeof process.env.TFL_API_SECRET_ID) {
         throw new Error('Missing env variable for TFL_API_SECRET_ID');
       }
@@ -54,40 +68,50 @@ export const handler = async (event, context, callback) => {
       var tflApiDetails = await getTflApiSecret(lambdaRegion,
                                                 process.env.TFL_API_SECRET_ID);
 
-      const nextBuses = parsedRequest && parsedRequest.destination ?
+      nextBuses = parsedRequest && parsedRequest.destination ?
         await nextBusTo(parsedRequest.destination, tflApiDetails) : {};
+      console.log("WA DEBUG logging in Lambda:CloudWatch: nextBuses: ", nextBuses);
 
-      const response = {
-        statusCode: 200,
-        request: parsedRequest ? parsedRequest.message : null,
-        rawRequest: parsedRequest,
-      };
+    } catch (err) {
+      // unable to get bus information
+      console.error(`Parsed Request: ${parsedRequest}, errored: `, err);
 
-      if ((parsedRequest && parsedRequest.destination === null) ||
-          nextBuses.endpoint === null) {
-        // the destination is unknown
-        response.code = 501;
-        response.err = 'Destination unknown';
+      callback(null, returnUnableToGetBusInfoResponse());
+    }
 
-        //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", response);
-        //return response;
-      }
+    // destination given in intent, but is unknown to our TFL API
+    if (parsedRequest.destination && nextBuses.endpoint === 'null') {
+      const actualResponse = returnUnknownDestinationResponse(parsedRequest.destination, event.session);
+      //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
+      callback(null, actualResponse);
+    }
 
-      if (nextBuses.arrivals) {
-        response.arrivals = nextBuses.arrivals;
+    console.log("WA DDEBUG: got here: ", parsedRequest)
+    // intent and destination both given, the destination is known by our TFL API,
+    //  but the actual TFL API returned an error
+    if (! [200,201].includes(nextBuses.status)) {
+      const actualResponse = returnUnableToGetBusInfoResponse();
+      //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
+      callback(null, actualResponse);
+    }
 
-        const actualResponse = returnScheduledBusesResponse(parsedRequest.destination,
-                                                            parsedRequest.intent,
-                                                            nextBuses.arrivals);
-        //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
+    // get this far with success and a set of next arrivals
+    if (nextBuses.arrivals) {
+      const actualResponse = returnScheduledBusesResponse(parsedRequest.destination,
+                                                          parsedRequest.intent,
+                                                          nextBuses.arrivals);
+      //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
 
-        callback(null, actualResponse);
-      }
+      callback(null, actualResponse);
+    }
 
-      //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", response);
-      //return response;
+    // gets here without a callback - that is bad
+    return false;
 
-  } catch (err) {
-      callback(new Error(err));
+  } else {
+    // no intent given, user has simply opened the skill
+    callback(null, returnSkillOpenedResponse(event.session));
   }
+
+  return true;
 };

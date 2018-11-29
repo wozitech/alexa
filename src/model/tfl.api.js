@@ -33,6 +33,12 @@ export const nextBusTo = async (destination, tflApiDetails) => {
             filterLineBy = '417';
             break;
 
+        // this destination forces an error in TFL API
+        case 'mythical land':
+            apiEndpoint += `/10039549696093/AAAAArrivals`;
+            filterLineBy = '000';
+            break;
+        
         default:
             apiEndpoint = null;
     }
