@@ -41,69 +41,97 @@ const logToSlack = (level, slackMsg) => {
 
     if (level <= ENV_LOG_LEVEL) {
         postToSlack(slackMsg);
+    }
+};
 
-        // TODO: HOW TO FORMAT THE MESSAGE TO SHOW LEVEL OF LOGGING IN SLACK
-        // switch (level) {
-        //     case SLACK_ERROR:
-        //         console.log("DEBUG: ", args);
-        //         break;
-        //     case SLACK_WARN:
-        //         console.log("WARNING: ", args);
-        //         break;
-        //     case SLACK_INFO:
-        //         console.log("INFO: ", args);
-        //         break;
-        //     case SLACK_DEBUG:
-        //         console.log("DEBUG: ", args);
-        //         break;
-        //     case SLACK_TRACE:
-        //         console.log("TRACE: ", args);
-        //         break;
-        // }        
+const formatArguments = (...theArgs) => {
+    // if there is only one argument, retun that
+    if (theArgs.length < 1 || theArgs[0].length < 1) {
+        // we have no arguments
+        return '';
+    }
+
+    if (theArgs[0].length == 1) {
+        return '```' + util.inspect(theArgs[0][0], { depth: null}) + '```\n';;
+    } else {
+        return theArgs[0].reduce((previous, current) => {
+            if (typeof previous !== 'string') {
+                // then the first argument was an object
+                previous = '```' + util.inspect(previous, { depth: null}) + '```\n';
+            }
+
+            if (! previous.endsWith('\n')) {
+                // then first argument was a string
+                previous += '\n';
+            }
+    
+            if (typeof current === 'object') {
+                previous += '```' + util.inspect(current, { depth: null}) + '```\n';
+            } else {
+                previous += current + '\n';
+            }
+    
+            return previous;
+        });
     }
 };
 
 // info is green
-export const slackInfo = (title, strMsg) => {
+export const slackInfo = (title, ...theArgs) => {
     logToSlack(SLACK_INFO, {
         text: `INFO`,
         username: 'markdownbot',
         markdwn: true,
         attachments: [
             {
-                color: '#00FF00',
+                color: 'good',
                 title,
-                text: strMsg
+                text: formatArguments(theArgs)
             }
         ]
     });
 }
 
-export const slackError = (title, strMsg) => {
+export const slackWarn = (title, ...theArgs) => {
+    logToSlack(SLACK_INFO, {
+        text: `WARNING`,
+        username: 'markdownbot',
+        markdwn: true,
+        attachments: [
+            {
+                color: 'warning',
+                title,
+                text: formatArguments(theArgs)
+            }
+        ]
+    });
+}
+
+export const slackError = (title, ...theArgs) => {
     logToSlack(SLACK_ERROR, {
         text: `ERROR`,
         username: 'markdownbot',
         markdwn: true,
         attachments: [
             {
-                color: '#00FF00',
+                color: 'danger',
                 title,
-                text: strMsg
+                text: formatArguments(theArgs)
             }
         ]
     });
 }
 
-export const slackTrace = (title, event) => {
+export const slackTrace = (title, ...theArgs) => {
     logToSlack(SLACK_TRACE, {
         text: `TRACE`,
         username: 'markdownbot',
         markdwn: true,
         attachments: [
             {
-                color: '#444444',
+                color: '#777777',
                 title,
-                text: '```' + util.inspect(event, { depth: null, compact: true, breakLength: 100 }) + '```'
+                text: formatArguments(theArgs)
             }
         ]
     });
@@ -117,6 +145,7 @@ export const slackRequest = (title, intent, destination) => {
         attachments: [
             {
                 title,
+                color: 'warning',
                 fields: [
                     {
                         title: 'Intent',
