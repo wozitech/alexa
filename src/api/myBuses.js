@@ -74,7 +74,6 @@ export const handler = async (event, context, callback) => {
     // no destination given in intent
     if (parsedRequest && parsedRequest.destination === null) {
       const actualResponse = returnNoDestinationResponse(event.session);
-      logWarn('Known intent but destination unknown: ', actualResponse);
       slackWarn(slackTitle, 'Known intent but destination unknown', actualResponse);
       return callback(null, actualResponse);
     }
@@ -84,8 +83,7 @@ export const handler = async (event, context, callback) => {
       var tflApiDetails = await getTflApiSecret();
 
       nextBuses = await nextBusTo(parsedRequest.destination, tflApiDetails);
-      logTrace("nextBuses: ", nextBuses);
-      slackTrace(slackTitle, "Next Buses", nextBuses);
+      slackTrace(slackTitle, "Next Buses: ", nextBuses);
 
     } catch (err) {
       // unable to get bus information
@@ -97,8 +95,8 @@ export const handler = async (event, context, callback) => {
     // destination given in intent, but is unknown to our TFL API
     if (parsedRequest.destination && nextBuses.endpoint === 'null') {
       const actualResponse = returnUnknownDestinationResponse(parsedRequest.destination, event.session);
-      logError('Destination given in intent, but is unknown to our TFL API: ', actualResponse);
-      slackError(slackTitle, 'Intent/Destination is good, but destination is unknown to our TFL API client');
+      logError('Destination given in intent, but is unknown to our TFL API: ', parsedRequest);
+      slackError(slackTitle, 'Intent/Destination is good, but destination is unknown to our TFL API client.', parsedRequest);
       return callback(null, actualResponse);
     }
 
@@ -125,6 +123,7 @@ export const handler = async (event, context, callback) => {
 
     // gets here without a callback - that is bad
     logError("unexpected logic", event);
+    slackError(slackTitle, "unexpected logic");
     return callback("unexpected logic", null);
 
   } else {

@@ -2,7 +2,7 @@
 // Slack application integration allows not just for messaging, but well formatted messaging
 import util from 'util';
 import axios from 'axios';
-import { logError } from './logger';
+import { logError, logWarn, logInfo, logTrace } from './logger';
 import { getSlackWebHookSecret } from '../aws/secrets';
 
 // log to console, if given level is less than equal to environment log level
@@ -78,6 +78,7 @@ const formatArguments = (...theArgs) => {
 
 // info is green
 export const slackInfo = (title, ...theArgs) => {
+    // logInfo(...theArgs);
     logToSlack(SLACK_INFO, {
         text: `INFO`,
         username: 'markdownbot',
@@ -93,6 +94,7 @@ export const slackInfo = (title, ...theArgs) => {
 }
 
 export const slackWarn = (title, ...theArgs) => {
+    // logWarn(...theArgs);
     logToSlack(SLACK_INFO, {
         text: `WARNING`,
         username: 'markdownbot',
@@ -108,6 +110,7 @@ export const slackWarn = (title, ...theArgs) => {
 }
 
 export const slackError = (title, ...theArgs) => {
+    // logError(...theArgs);
     logToSlack(SLACK_ERROR, {
         text: `ERROR`,
         username: 'markdownbot',
@@ -123,6 +126,7 @@ export const slackError = (title, ...theArgs) => {
 }
 
 export const slackTrace = (title, ...theArgs) => {
+    // logTrace(theArgs);
     logToSlack(SLACK_TRACE, {
         text: `TRACE`,
         username: 'markdownbot',
