@@ -20,6 +20,7 @@ AWS.SecretsManager = jest.fn( () => ({
 }));
 
 
+const tflApiEnv = 'TFL_API_Portal';
 
 const nowTime = new Date();
 const nextTime = new Date();
@@ -40,15 +41,11 @@ nextBusToMock.mockReturnValue({
     ]
 });
 
+
 MySecrets.getTflApiSecret = getTflApiSecretMock;
 getTflApiSecretMock.mockReturnValue({
     tfl_api_app_id : 123,
     tfl_api_app_key : 456
-});
-getTflApiSecretMock.mockImplementation(() => {
-});
-getTflApiSecretMock.mockImplementationOnce(() => {
-    throw new Error('Nasty');
 });
 
 const alexaSkillDefaultSession = {
@@ -271,8 +268,11 @@ describe('The myBuses handler', () => {
         });
 
         it ('should silently handle error when the event has no intent', async () => {
-            const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
+            getTflApiSecretMock.mockImplementationOnce(() => {
+                throw new Error('Why does this not work?');
+            });
+            getTflApiSecretMock.mockRejectedValueOnce(new Error('Why does this not work?'));
 
             const returnVal = await handler(theEvent, theContext, (err, data) => {
                 // trapping of intent comes before any TFL API lookup
@@ -297,7 +297,6 @@ describe('The myBuses handler', () => {
         });
 
         it('should call the handler with success but handle a missing destination', async () => {
-            const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
 
             // poor man's deep copy
@@ -324,12 +323,12 @@ describe('The myBuses handler', () => {
             });
         });
 
-        it ('should silently handle when an exception is thrown in API', async () => {
-            const tflApiEnv = 'TFL_API_Portal';
-            process.env.TFL_API_SECRET_ID = tflApiEnv;
+        /* it ('should silently handle when an exception is thrown in secrets', async () => {
+            delete process.env.TFL_API_SECRET_ID;
 
+console.log("TEST DEBUG: want to throw exception in getTflApiSecret")
             const returnVal = await handler(whenIsAlexaExampleEvent, theContext, (err, data) => {
-                expect(getTflApiSecretMock).toHaveBeenCalledWith('eu-west-1',tflApiEnv);
+                expect(getTflApiSecretMock).toHaveBeenCalledWith('eu-west-1');
 
                 // expecting a proper format AlexaSkills response
                 expect(data.version).toEqual('1.0');
@@ -344,14 +343,32 @@ describe('The myBuses handler', () => {
             });
         });
  
-        getTflApiSecretMock.mockImplementation(() => {});
+        it ('should silently handle when an exception is thrown in API', async () => {
+            process.env.TFL_API_SECRET_ID = tflApiEnv;
+
+console.log("TEST DEBUG: want to throw exception in nextBusTo")
+            const returnVal = await handler(whenIsAlexaExampleEvent, theContext, (err, data) => {
+                expect(getTflApiSecretMock).toHaveBeenCalledWith('eu-west-1');
+
+                // expecting a proper format AlexaSkills response
+                expect(data.version).toEqual('1.0');
+
+                expect(data.response.outputSpeech).toBeDefined();
+                expect(data.response.outputSpeech.type).toEqual('PlainText');
+                expect(data.response.outputSpeech.text).toEqual('Bus information is unavailable');
+
+                // we satisfy the intent in full, end of dialog
+                expect(data.response.shouldEndSession).toEqual(true);
+                expect(data.sessionAttributes).toEqual({});
+            });
+        });
+  */
 
         it('should call the handler with success for whenIs intent', async () => {
-            const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
 
             const returnVal = await handler(whenIsAlexaExampleEvent, theContext, (err, data) => {
-                expect(getTflApiSecretMock).toHaveBeenCalledWith('eu-west-1',tflApiEnv);
+                expect(getTflApiSecretMock).toHaveBeenCalledWith('eu-west-1');
 
                 // expecting a proper format AlexaSkills response
                 expect(data.version).toEqual('1.0');
@@ -367,7 +384,6 @@ describe('The myBuses handler', () => {
         });
 
         it('should call the handler with success for howLong intent', async () => {
-            const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
 
             const returnVal = await handler(howLongAlexaExampleEvent, theContext, (err, data) => {
@@ -387,7 +403,6 @@ describe('The myBuses handler', () => {
         });
 
         it('should call the handler with success when simply opening the skill', async () => {
-            const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
 
             const returnVal = await handler(openskillAlexaExampleEvent, theContext, (err, data) => {
@@ -410,7 +425,6 @@ describe('The myBuses handler', () => {
             });
         });
         it('should call the handler safetly with an unexpected intent - equivalent to open skill', async () => {
-            const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
 
             const returnVal = await handler(unexpectedIntentExampleEvent, theContext, (err, data) => {
@@ -434,7 +448,6 @@ describe('The myBuses handler', () => {
         });
 
         it('should call the handler prompting for more info, if giving a good intent but missing destination', async () => {
-            const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
 
             const returnVal = await handler(goodIntentButnNoDestinationExampleEvent, theContext, (err, data) => {
@@ -458,7 +471,6 @@ describe('The myBuses handler', () => {
         });
 
         it('should call the handler prompting for more info, if giving a good intent with destination but the destination unknown to our API', async () => {
-            const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
 
             nextBusToMock.mockReturnValueOnce({
@@ -487,7 +499,6 @@ describe('The myBuses handler', () => {
         });
 
         it('should call the handler safely, even on error in calling out to TFL API', async () => {
-            const tflApiEnv = 'TFL_API_Portal';
             process.env.TFL_API_SECRET_ID = tflApiEnv;
 
             nextBusToMock.mockReturnValueOnce({

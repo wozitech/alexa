@@ -56,12 +56,6 @@ export const handler = async (event, context, callback) => {
   var arnList = (context.invokedFunctionArn).split(":");
   var lambdaRegion = arnList[3];
 
-  if ('undefined' === typeof process.env.TFL_API_SECRET_ID) {
-    const errMsg = 'Missing env variable for TFL_API_SECRET_ID';
-    logError(errMsg)
-    throw new Error(errMsg);
-  }
-
   // 'parsedRequest' returns null if not intent
   const parsedRequest = parseRequest(event);
 
@@ -75,8 +69,7 @@ export const handler = async (event, context, callback) => {
     
     let nextBuses = null;
     try {
-      var tflApiDetails = await getTflApiSecret(lambdaRegion,
-                                                process.env.TFL_API_SECRET_ID);
+      var tflApiDetails = await getTflApiSecret(lambdaRegion);
 
       nextBuses = await nextBusTo(parsedRequest.destination, tflApiDetails);
       logTrace("nextBuses: ", nextBuses);
