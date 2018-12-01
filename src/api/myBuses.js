@@ -8,7 +8,7 @@ import { returnUnknownDestinationResponse,
          returnUnableToGetBusInfoResponse,
          returnScheduledBusesResponse } from '../model/alexaResponse';
 import { logInfo, logError, logWarn, logTrace } from '../common/logger';
-import { slackInfo } from '../common/slack';
+import { slackInfo, slackRequest, slackTrace } from '../common/slack';
 import { initialiseSecrets } from '../aws/secrets';
 
 // processes the Lambda Event from Alexa Skill, validating the request
@@ -58,12 +58,19 @@ export const handler = async (event, context, callback) => {
   var arnList = (context.invokedFunctionArn).split(":");
   var lambdaRegion = arnList[3];
 
+  const stackTitle = typeof event.session.sessionId === 'undefined' ? 'Not AlexaSkill data' :
+  event.session.sessionId.split('.')[3];
+
   initialiseSecrets(lambdaRegion);
+
+  slackTrace(stackTitle, event);
 
   // 'parsedRequest' returns null if not intent
   const parsedRequest = parseRequest(event);
 
   if (parsedRequest) {
+    slackRequest(stackTitle, parsedRequest.intent, parsedRequest.destination);
+
     // no destination given in intent
     if (parsedRequest && parsedRequest.destination === null) {
       const actualResponse = returnNoDestinationResponse(event.session);
@@ -106,7 +113,7 @@ export const handler = async (event, context, callback) => {
                                                           nextBuses.route,
                                                           nextBuses.arrivals);
       logInfo("Successful intent and destination: ", actualResponse);
-      slackInfo("Successful intent and destination");
+      slackInfo(stackTitle, "Successful intent and destination");
 
       return callback(null, actualResponse);
     }

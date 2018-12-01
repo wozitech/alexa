@@ -1,5 +1,6 @@
 // Slack is a great tool for comms. But not just between people. Applications can interact with Slack too.
 // Slack application integration allows not just for messaging, but well formatted messaging
+import util from 'util';
 import axios from 'axios';
 import { logError } from './logger';
 import { getSlackWebHookSecret } from '../aws/secrets';
@@ -17,7 +18,6 @@ const postToSlack = async (slackMsg) => {
     try {
         const slackWebhook = await getSlackWebHookSecret();
 
-        console.log("About to post to slack: ", slackWebhook);
         const apiResponse = await axios.post(
             slackWebhook.webhook,
             slackMsg,       // the data
@@ -26,8 +26,6 @@ const postToSlack = async (slackMsg) => {
                     'Content-Type': 'application/json',
                 }
             });
-
-        console.log("Response from slack: ", apiResponse);
 
     } catch (err) {
         // silently discard errors
@@ -65,11 +63,73 @@ const logToSlack = (level, slackMsg) => {
     }
 };
 
-// takes a 
-export const slackInfo = (strMsg) => {
-    logToSlack(SLACK_INFO, {text: `INFO: ${strMsg}`});
+// info is green
+export const slackInfo = (title, strMsg) => {
+    logToSlack(SLACK_INFO, {
+        text: `INFO`,
+        username: 'markdownbot',
+        markdwn: true,
+        attachments: [
+            {
+                color: '#00FF00',
+                title,
+                text: strMsg
+            }
+        ]
+    });
 }
 
-export const slackError = (strMsg) => {
-    logToSlack(SLACK_ERROR, {text: `ERROR: ${strMsg}`});
+export const slackError = (title, strMsg) => {
+    logToSlack(SLACK_ERROR, {
+        text: `ERROR`,
+        username: 'markdownbot',
+        markdwn: true,
+        attachments: [
+            {
+                color: '#00FF00',
+                title,
+                text: strMsg
+            }
+        ]
+    });
+}
+
+export const slackTrace = (title, event) => {
+    logToSlack(SLACK_TRACE, {
+        text: `TRACE`,
+        username: 'markdownbot',
+        markdwn: true,
+        attachments: [
+            {
+                color: '#444444',
+                title,
+                text: '```' + util.inspect(event, { depth: null, compact: true, breakLength: 100 }) + '```'
+            }
+        ]
+    });
+}
+
+export const slackRequest = (title, intent, destination) => {
+    logToSlack(SLACK_INFO, {
+        text: `Request`,
+        username: 'markdownbot',
+        markdwn: true,
+        attachments: [
+            {
+                title,
+                fields: [
+                    {
+                        title: 'Intent',
+                        value: intent,
+                        short: true
+                    },
+                    {
+                        title: 'Destination',
+                        value: destination,
+                        short: true
+                    }                    
+                ]
+            }
+        ]
+    });
 }
