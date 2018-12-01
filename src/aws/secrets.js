@@ -61,7 +61,6 @@ export const getSlackWebHookSecret = async () => {
     throw new Error(errMsg);
   }
 
-  console.log("WA DEBUG: getting secret: ", process.env.SLACK_WEBHOOK);
   const webhookSecret =
     await secrets.getSecretValue({SecretId: process.env.SLACK_WEBHOOK}).promise();
 
