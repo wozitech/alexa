@@ -1,18 +1,32 @@
 import AWS  from 'aws-sdk';
 import { logError } from '../common/logger';
 
-export const getTflApiSecret = async (lambdaRegion) => {
+let secrets = null;
+
+export const initialiseSecrets = (lambdaRegion) => {
+  secrets = new AWS.SecretsManager({
+    region: lambdaRegion
+  });
+};
+
+export const resetSecrets = () => {
+  secrets = null;
+};
+
+export const getTflApiSecret = async () => {
   if ('undefined' === typeof process.env.TFL_API_SECRET_ID) {
     const errMsg = 'Missing env variable for TFL_API_SECRET_ID';
     logError(errMsg)
     throw new Error(errMsg);
   }
 
-  var secrets = new AWS.SecretsManager({
-      region: lambdaRegion
-  });
-  
-  var tflApiSecret =
+  if (secrets === null) {
+    const errMsg = 'Not initialised secrets';
+    logError(errMsg)
+    throw new Error(errMsg);
+  }
+
+  const tflApiSecret =
     await secrets.getSecretValue({SecretId: process.env.TFL_API_SECRET_ID}).promise();
 
   if (typeof tflApiSecret.SecretString !== 'undefined') {
@@ -35,18 +49,20 @@ export const getTflApiSecret = async (lambdaRegion) => {
 
 }
 
-export const getSlackWebHookSecret = async (lambdaRegion) => {
+export const getSlackWebHookSecret = async () => {
   if ('undefined' === typeof process.env.SLACK_WEBHOOK) {
     const errMsg = 'Missing env variable for SLACK_WEBHOOK';
     logError(errMsg)
     throw new Error(errMsg);
   }
   
-  var secrets = new AWS.SecretsManager({
-      region: lambdaRegion
-  });
-  
-  var webhookSecret =
+  if (secrets === null) {
+    const errMsg = 'Not initialised secrets';
+    logError(errMsg)
+    throw new Error(errMsg);
+  }
+
+ const webhookSecret =
     await secrets.getSecretValue({SecretId: process.env.SLACK_WEBHOOK}).promise();
 
   if (typeof webhookSecret.SecretString !== 'undefined') {
