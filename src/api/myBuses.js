@@ -67,9 +67,7 @@ export const handler = async (event, context, callback) => {
     if (parsedRequest && parsedRequest.destination === null) {
       const actualResponse = returnNoDestinationResponse(event.session);
       //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
-      callback(null, actualResponse);
-
-      return;
+      return callback(null, actualResponse);
     }
     
     let nextBuses = null;
@@ -84,16 +82,14 @@ export const handler = async (event, context, callback) => {
       // unable to get bus information
       //console.error(`Parsed Request: ${parsedRequest}, errored: `, err);
 
-      callback(null, returnUnableToGetBusInfoResponse());
-
-      return;
+      return callback(null, returnUnableToGetBusInfoResponse());
     }
 
     // destination given in intent, but is unknown to our TFL API
     if (parsedRequest.destination && nextBuses.endpoint === 'null') {
       const actualResponse = returnUnknownDestinationResponse(parsedRequest.destination, event.session);
       //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
-      callback(null, actualResponse);
+      return callback(null, actualResponse);
     }
 
     // intent and destination both given, the destination is known by our TFL API,
@@ -101,7 +97,7 @@ export const handler = async (event, context, callback) => {
     if (! [200,201].includes(nextBuses.status)) {
       const actualResponse = returnUnableToGetBusInfoResponse();
       //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
-      callback(null, actualResponse);
+      return callback(null, actualResponse);
     }
 
     // get this far with success and a set of next arrivals
@@ -112,16 +108,14 @@ export const handler = async (event, context, callback) => {
                                                           nextBuses.arrivals);
       //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
 
-      callback(null, actualResponse);
+      return callback(null, actualResponse);
     }
 
     // gets here without a callback - that is bad
-    return false;
+    return callback("unexpected logic", null);
 
   } else {
     // no intent given, user has simply opened the skill
-    callback(null, returnSkillOpenedResponse(event.session));
+    return callback(null, returnSkillOpenedResponse(event.session));
   }
-
-  return true;
 };
