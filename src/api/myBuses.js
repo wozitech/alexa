@@ -8,7 +8,7 @@ import { returnUnknownDestinationResponse,
          returnUnableToGetBusInfoResponse,
          returnScheduledBusesResponse } from '../model/alexaResponse';
 import { logInfo, logError, logWarn, logTrace } from '../common/logger';
-import { slackInfo, slackRequest, slackTrace } from '../common/slack';
+import { slackInfo, slackRequest, slackTrace, slackWarn, slackError } from '../common/slack';
 import { initialiseSecrets } from '../aws/secrets';
 
 // processes the Lambda Event from Alexa Skill, validating the request
@@ -58,23 +58,24 @@ export const handler = async (event, context, callback) => {
   var arnList = (context.invokedFunctionArn).split(":");
   var lambdaRegion = arnList[3];
 
-  const stackTitle = typeof event.session.sessionId === 'undefined' ? 'Not AlexaSkill data' :
+  const slackTitle = typeof event.session.sessionId === 'undefined' ? 'Not AlexaSkill data' :
   event.session.sessionId.split('.')[3];
 
   initialiseSecrets(lambdaRegion);
 
-  slackTrace(stackTitle, event);
+  slackTrace(slackTitle, event);
 
   // 'parsedRequest' returns null if not intent
   const parsedRequest = parseRequest(event);
 
   if (parsedRequest) {
-    slackRequest(stackTitle, parsedRequest.intent, parsedRequest.destination);
+    slackRequest(slackTitle, parsedRequest.intent, parsedRequest.destination);
 
     // no destination given in intent
     if (parsedRequest && parsedRequest.destination === null) {
       const actualResponse = returnNoDestinationResponse(event.session);
-      logWarn("Known intent but destination unknown: ", actualResponse);
+      logWarn('Known intent but destination unknown: ', actualResponse);
+      slackWarn(slackTitle, 'Known intent but destination unknown', actualResponse);
       return callback(null, actualResponse);
     }
     
@@ -84,17 +85,20 @@ export const handler = async (event, context, callback) => {
 
       nextBuses = await nextBusTo(parsedRequest.destination, tflApiDetails);
       logTrace("nextBuses: ", nextBuses);
+      slackTrace(slackTitle, "Next Buses", nextBuses);
 
     } catch (err) {
       // unable to get bus information
       logError(`Parsed Request: ${parsedRequest}, errored: `, err);
+      slackError(slackTitle, 'Unable to fetch bus info', err);
       return callback(null, returnUnableToGetBusInfoResponse());
     }
 
     // destination given in intent, but is unknown to our TFL API
     if (parsedRequest.destination && nextBuses.endpoint === 'null') {
       const actualResponse = returnUnknownDestinationResponse(parsedRequest.destination, event.session);
-      logError("Destination given in intent, but is unknown to our TFL API: ", actualResponse);
+      logError('Destination given in intent, but is unknown to our TFL API: ', actualResponse);
+      slackError(slackTitle, 'Intent/Destination is good, but destination is unknown to our TFL API client');
       return callback(null, actualResponse);
     }
 
@@ -102,7 +106,8 @@ export const handler = async (event, context, callback) => {
     //  but the actual TFL API returned an error
     if (! [200,201].includes(nextBuses.status)) {
       const actualResponse = returnUnableToGetBusInfoResponse();
-      logError("Failed to call TFL API: ", actualResponse);
+      logError('Error returning from TFL API: ', nextBuses);
+      slackError(slackError, 'Error returning from TFL API: ', nextBuses);
       return callback(null, actualResponse);
     }
 
@@ -113,7 +118,7 @@ export const handler = async (event, context, callback) => {
                                                           nextBuses.route,
                                                           nextBuses.arrivals);
       logInfo("Successful intent and destination: ", actualResponse);
-      slackInfo(stackTitle, "Successful intent and destination");
+      slackInfo(slackTitle, "Successful intent and destination", actualResponse);
 
       return callback(null, actualResponse);
     }
@@ -124,7 +129,8 @@ export const handler = async (event, context, callback) => {
 
   } else {
     // no intent given, user has simply opened the skill
-    logInfo("Unknown intent, open skill");
+    logInfo('Unknown intent, open skill');
+    slackWarn('Unknown intent, open skill');
     return callback(null, returnSkillOpenedResponse(event.session));
   }
 };
