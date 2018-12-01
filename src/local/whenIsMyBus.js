@@ -1,11 +1,12 @@
 const myHello = require('../../lib/myBuses');
+const uuid = require('uuid');
 
 // stripped out to just the request
 const whenIsAlexaExampleEvent = {
     "version": "1.0",
     "session": {
         "new": true,
-        "sessionId": "amzn1.echo-api.session.2f8f91d4-fed4-445f-bd2a-923c27db6072",
+        "sessionId": "amzn1.echo-api.session." + uuid.v4(),
         "application": {
             "applicationId": "amzn1.ask.skill.2ba78764-0a67-481f-907a-3f7c08287aeb"
         },
