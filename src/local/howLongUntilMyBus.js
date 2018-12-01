@@ -70,4 +70,5 @@ const myBuses = async () => {
 }
 
 process.env.TFL_API_SECRET_ID = 'TFL_API_Portal';
+process.env.LOG_LEVEL = 3;
 myBuses();

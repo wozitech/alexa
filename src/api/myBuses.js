@@ -7,6 +7,7 @@ import { returnUnknownDestinationResponse,
          returnNoDestinationResponse,
          returnUnableToGetBusInfoResponse,
          returnScheduledBusesResponse } from '../model/alexaResponse';
+import { logInfo, logError, logWarn, logTrace } from '../common/logger';
 
 // processes the Lambda Event from Alexa Skill, validating the request
 //  and extracting the intent & destination.
@@ -56,7 +57,9 @@ export const handler = async (event, context, callback) => {
   var lambdaRegion = arnList[3];
 
   if ('undefined' === typeof process.env.TFL_API_SECRET_ID) {
-    throw new Error('Missing env variable for TFL_API_SECRET_ID');
+    const errMsg = 'Missing env variable for TFL_API_SECRET_ID';
+    logError(errMsg)
+    throw new Error(errMsg);
   }
 
   // 'parsedRequest' returns null if not intent
@@ -66,7 +69,7 @@ export const handler = async (event, context, callback) => {
     // no destination given in intent
     if (parsedRequest && parsedRequest.destination === null) {
       const actualResponse = returnNoDestinationResponse(event.session);
-      //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
+      logWarn("Known intent but destination unknown: ", actualResponse);
       return callback(null, actualResponse);
     }
     
@@ -76,19 +79,18 @@ export const handler = async (event, context, callback) => {
                                                 process.env.TFL_API_SECRET_ID);
 
       nextBuses = await nextBusTo(parsedRequest.destination, tflApiDetails);
-      //console.log("WA DEBUG logging in Lambda:CloudWatch: nextBuses: ", nextBuses);
+      logTrace("nextBuses: ", nextBuses);
 
     } catch (err) {
       // unable to get bus information
-      //console.error(`Parsed Request: ${parsedRequest}, errored: `, err);
-
+      logError(`Parsed Request: ${parsedRequest}, errored: `, err);
       return callback(null, returnUnableToGetBusInfoResponse());
     }
 
     // destination given in intent, but is unknown to our TFL API
     if (parsedRequest.destination && nextBuses.endpoint === 'null') {
       const actualResponse = returnUnknownDestinationResponse(parsedRequest.destination, event.session);
-      //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
+      logError("Destination given in intent, but is unknown to our TFL API: ", actualResponse);
       return callback(null, actualResponse);
     }
 
@@ -96,7 +98,7 @@ export const handler = async (event, context, callback) => {
     //  but the actual TFL API returned an error
     if (! [200,201].includes(nextBuses.status)) {
       const actualResponse = returnUnableToGetBusInfoResponse();
-      //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
+      logError("Failed to call TFL API: ", actualResponse);
       return callback(null, actualResponse);
     }
 
@@ -106,16 +108,18 @@ export const handler = async (event, context, callback) => {
                                                           parsedRequest.intent,
                                                           nextBuses.route,
                                                           nextBuses.arrivals);
-      //console.log("WA DEBUG logging in Lambda:CloudWatch: response: ", actualResponse);
+      logInfo("Successful intent and destination: ", actualResponse);
 
       return callback(null, actualResponse);
     }
 
     // gets here without a callback - that is bad
+    logError("unexpected logic", event);
     return callback("unexpected logic", null);
 
   } else {
     // no intent given, user has simply opened the skill
+    logInfo("Unknown intent, open skill");
     return callback(null, returnSkillOpenedResponse(event.session));
   }
 };
