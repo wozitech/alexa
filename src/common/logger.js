@@ -14,8 +14,6 @@ const logToConsole = (level, ...args) => {
     // default to logging errors only; 0 disables logging
     const ENV_LOG_LEVEL = process.env.LOG_LEVEL || LOG_DISABLED;
 
-    console.log("WA DEBUG: current log level: ", ENV_LOG_LEVEL);
-
     if (level <= ENV_LOG_LEVEL) {
         switch (level) {
             case LOG_ERROR:
