@@ -4,7 +4,6 @@ import { logError } from '../common/logger';
 let secrets = null;
 
 export const initialiseSecrets = (lambdaRegion) => {
-  console.log("WA DEBUG: Initialising secrets with: ", lambdaRegion)
   secrets = new AWS.SecretsManager({
     region: lambdaRegion
   });
@@ -54,7 +53,6 @@ export const getSlackWebHookSecret = async () => {
     logError(errMsg)
     throw new Error(errMsg);
   }
-  
   if (secrets === null) {
     const errMsg = 'Not initialised secrets';
     logError(errMsg)
@@ -64,7 +62,7 @@ export const getSlackWebHookSecret = async () => {
   const webhookSecret =
     await secrets.getSecretValue({SecretId: process.env.SLACK_WEBHOOK}).promise();
 
-  if (typeof webhookSecret.SecretString !== 'undefined') {
+    if (typeof webhookSecret.SecretString !== 'undefined') {
     var webhookDetails = JSON.parse(webhookSecret.SecretString);
 
     if (typeof webhookDetails == 'undefined' ||
