@@ -38,7 +38,7 @@ const myBuses = async () => {
 
         const returnVal = await myHello.handler(
             noGivenDestinationExampleEvent,
-            { invokedFunctionArn : 'arn:aws:lambda:eu-west-2:accountid:function:wozitech-alexa-skills-dev-myBuses' },
+            { invokedFunctionArn : 'arn:aws:lambda:eu-west-1:accountid:function:wozitech-alexa-skills-dev-myBuses' },
             (err, data) => {
                 if (err) console.error(err);
                 console.log("LOCAL: My results: ", data);
@@ -52,4 +52,5 @@ const myBuses = async () => {
 
 process.env.TFL_API_SECRET_ID = 'TFL_API_Portal';
 process.env.LOG_LEVEL = 5;
+process.env.SLACK_LEVEL = 5;
 myBuses();

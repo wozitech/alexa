@@ -8,6 +8,8 @@ import { returnUnknownDestinationResponse,
          returnUnableToGetBusInfoResponse,
          returnScheduledBusesResponse } from '../model/alexaResponse';
 import { logInfo, logError, logWarn, logTrace } from '../common/logger';
+import { slackInfo } from '../common/slack';
+import { initialiseSecrets } from '../aws/secrets';
 
 // processes the Lambda Event from Alexa Skill, validating the request
 //  and extracting the intent & destination.
@@ -56,6 +58,8 @@ export const handler = async (event, context, callback) => {
   var arnList = (context.invokedFunctionArn).split(":");
   var lambdaRegion = arnList[3];
 
+  initialiseSecrets(lambdaRegion);
+
   // 'parsedRequest' returns null if not intent
   const parsedRequest = parseRequest(event);
 
@@ -69,7 +73,7 @@ export const handler = async (event, context, callback) => {
     
     let nextBuses = null;
     try {
-      var tflApiDetails = await getTflApiSecret(lambdaRegion);
+      var tflApiDetails = await getTflApiSecret();
 
       nextBuses = await nextBusTo(parsedRequest.destination, tflApiDetails);
       logTrace("nextBuses: ", nextBuses);
@@ -102,6 +106,7 @@ export const handler = async (event, context, callback) => {
                                                           nextBuses.route,
                                                           nextBuses.arrivals);
       logInfo("Successful intent and destination: ", actualResponse);
+      slackInfo("Successful intent and destination");
 
       return callback(null, actualResponse);
     }

@@ -58,7 +58,7 @@ const myBuses = async () => {
 
         const returnVal = await myHello.handler(
             unknownDestinationExampleEvent,
-            { invokedFunctionArn : 'arn:aws:lambda:eu-west-2:accountid:function:wozitech-alexa-skills-dev-myBuses' },
+            { invokedFunctionArn : 'arn:aws:lambda:eu-west-1:accountid:function:wozitech-alexa-skills-dev-myBuses' },
             (err, data) => {
                 if (err) console.error(err);
                 console.log("LOCAL: My results: ", data);

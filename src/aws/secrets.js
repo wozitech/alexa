@@ -4,6 +4,7 @@ import { logError } from '../common/logger';
 let secrets = null;
 
 export const initialiseSecrets = (lambdaRegion) => {
+  console.log("WA DEBUG: Initialising secrets with: ", lambdaRegion)
   secrets = new AWS.SecretsManager({
     region: lambdaRegion
   });
@@ -31,8 +32,6 @@ export const getTflApiSecret = async () => {
 
   if (typeof tflApiSecret.SecretString !== 'undefined') {
     var tflApiDetails = JSON.parse(tflApiSecret.SecretString);
-
-    console.log("WA DEBIG, API details: ", tflApiDetails)
 
     if (typeof tflApiDetails == 'undefined' ||
         typeof tflApiDetails.tfl_api_app_id == 'undefined' ||
@@ -62,7 +61,8 @@ export const getSlackWebHookSecret = async () => {
     throw new Error(errMsg);
   }
 
- const webhookSecret =
+  console.log("WA DEBUG: getting secret: ", process.env.SLACK_WEBHOOK);
+  const webhookSecret =
     await secrets.getSecretValue({SecretId: process.env.SLACK_WEBHOOK}).promise();
 
   if (typeof webhookSecret.SecretString !== 'undefined') {
