@@ -1,0 +1,40 @@
+{
+    "$id" : "myBusData.schema.json",
+	"description" : "Describes Design assets, like Layout, Background, Decoration, Font and Colour",
+	"title" : "Rollercoaster Design Assets Schema - reuses much from editor-schema",
+	"definitions" : {
+		"myBusRoutes" : {
+			"description" : "Describes a preferred bus route for each given destination",
+			"type" : "object",
+			"properties" : {
+				"destination" : {
+					"description" : "the destination to identity this preferred bus route",
+					"type" : "string",
+					"minLength" : 3
+				},
+				"line" : {
+					"description" : "the route number of the bus, e.g. 417",
+					"type" : "string",
+					"minLength" : 1
+				},
+				"walkTime" : {
+					"description" : "how long it takes in seconds to walk to the preferred stop",
+					"type" : "integer",
+					"minimum": 30
+				},
+				"stopPoint" : {
+					"description" : "The TFL Stop Point; specific location to check for arrivals",
+					"type" : "string",
+					"minLength" : 8
+				}
+			},
+			"required" : ["destination", "line", "walkTime", "stopPoint"]
+		}
+	},
+	"type" : "array",
+	"items" : {
+		"$ref" : "#/definitions/myBusRoutes"
+	},
+	"minItems" : 1,
+	"additionalProperties" : false
+}
