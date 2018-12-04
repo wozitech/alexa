@@ -128,7 +128,7 @@ export const handler = async (event, context, callback) => {
 
   } else {
     // no intent given, user has simply opened the skill
-    logInfo('Unknown intent, open skill');
+    logWarn('Unknown intent, open skill');
     slackWarn('Unknown intent, open skill');
     return callback(null, returnSkillOpenedResponse(event.session));
   }

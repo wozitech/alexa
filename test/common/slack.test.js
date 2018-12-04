@@ -24,12 +24,6 @@ getSlackWebHookSecretMock.mockImplementation(() => {
 const logErrorMock = jest.fn();
 MyLogger.logError = jest.fn();
 
-// global.console = {
-//     error: jest.fn(),
-//     warn: jest.fn(),
-//     log: jest.fn()
-// }
-
 const slackToAll = async () => {
     await slackRequest("My request", { one: true }, { two: false});
     await slackError("My Error", "one", { two: false});
@@ -38,86 +32,137 @@ const slackToAll = async () => {
     await slackTrace("My Trace", "one", "two");
 };
 
-describe('Each level of slack logging', () => {
+describe('Slack logging error checks', async () => {
     beforeAll(() => {
-        
+        process.env.LOG_LEVEL=1;    // this is to force the writing of logError
+        process.env.SLACK_LEVEL=1;
+        process.env.SLACK_WEBHOOK='MY_SLACK_KEY';
+        jest.clearAllMocks();
     });
     afterEach(() => {
         jest.clearAllMocks();
     });
 
-/*     it ('should handle silently any error associated with getting the Slack webhook from Secrets Manager', () => {
-        process.env.LOG_LEVEL=1;    // this is to force the writing of logError
-        process.env.SLACK_LEVEL=1;
-        console.log("TEST DEBUG: about to test exception in getSlackWebHookSecret")
-
+    it ('should handle silently any error associated with getting the Slack webhook from Secrets Manager', async () => {
         getSlackWebHookSecretMock.mockImplementationOnce(() => {
-            console.log("TEST DEBUG - calling mocked Secrets error just once")
-            return Promise.reject(new Error('oops just once'));
+            return Promise.reject(new Error('oops Slack webhook failed'));
         });
 
-        slackError("My Secrets Error Test");
-        expect(axios.post).not.toHaveBeenCalled();
-        expect(global.console.error).toHaveBeenCalledTimes(1);
-        console.log("TEST DEBUG: MyLogger mock function: ", MyLogger.logError);
-        expect(MyLogger.logError).toHaveBeenCalledTimes(1);
-        expect(MyLogger.logError).toHaveBeenCalledWith("Failed to post to Slack:");
-    });
-*/
-    it ('should handle silently any error associated with calling upon the Slack API', async () => {
-        console.log("TEST DEBUG: about to test exception in axios.post")
-        process.env.SLACK_LEVEL=1;
-        process.env.SLACK_WEBHOOK='MY_SLACK_KEY';
+        await slackError("My Secrets Error Test");
 
-        axios.post.mockRejectedValueOnce(new Error('oops just once'));
+        expect(axios.post).not.toHaveBeenCalled();
+        expect(MyLogger.logError).toHaveBeenCalledTimes(1);
+        expect(MyLogger.logError).toHaveBeenCalledWith("Failed to post to Slack: ", new Error('oops Slack webhook failed'));
+    });
+
+    it ('should handle silently any error associated with calling upon the Slack API', async () => {
+
+        axios.post.mockRejectedValueOnce(new Error('oops Axios.post failed'));
 
         await slackError("My Slack API error test");
         expect(axios.post).toHaveBeenCalledTimes(1);
-        // expect(MyLogger.logError).toHaveBeenCalledTimes(1);
-        // expect(MyLogger.logError).toHaveBeenCalledWith("Failed to post to Slack:");
+        expect(MyLogger.logError).toHaveBeenCalledTimes(1);
+        expect(MyLogger.logError).toHaveBeenCalledWith("Failed to post to Slack: ", new Error('oops Axios.post failed'));
+    });
+});
+
+describe('Disabled slack logging', () => {
+    beforeAll(() => {
+        jest.clearAllMocks();
     });
 
-    // it ('should log nothing with logging is disabled - first, log level undefined', async () => {
-    //     delete process.env.SLACK_LEVEL;
-    //     await slackToAll();
-    //     expect(axios.post).toHaveBeenCalledTimes(0);
-    // });
-    // it ('should log nothing with logging is disabled - first, log level defined as disabled', async () => {
-    //     process.env.SLACK_LEVEL=0;
-    //     await slackToAll();
-    //     expect(axios.post).toHaveBeenCalledTimes(0);
-    // });
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
 
-    // it ('should log only errors', async () => {
-    //     console.log("TEST DEBUG: about to test errors only")
-    //     process.env.SLACK_LEVEL=1;
-    //     await slackToAll();
-    //     expect(axios.post).toHaveBeenCalledTimes(1);
-    // });
+    it ('should log nothing with logging is disabled - first, log level undefined', async () => {
+        delete process.env.SLACK_LEVEL;
+        await slackToAll();
+        expect(axios.post).toHaveBeenCalledTimes(0);
+    });
+    it ('should log nothing with logging is disabled - first, log level defined as disabled', async () => {
+        process.env.SLACK_LEVEL=0;
+        await slackToAll();
+        expect(axios.post).toHaveBeenCalledTimes(0);
+    });
+});
 
-    // it ('should log up to warnings only', async () => {
-    //     console.log("TEST DEBUG: about to test warning only")
-    //     process.env.SLACK_LEVEL=2;
-    //     await slackToAll();
-    //     expect(axios.post).toHaveBeenCalledTimes(2);
-    // });
+describe('Errors only', () => {
+    beforeAll(() => {
+        process.env.SLACK_LEVEL=1;
+        jest.clearAllMocks();
+    });
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it ('should log only errors', async () => {
+        await slackToAll();
+        expect(axios.post).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('Warnings only', () => {
+    beforeAll(() => {
+        process.env.SLACK_LEVEL=2;
+        jest.clearAllMocks();
+    });
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it ('should log up to warnings only', async () => {
+        await slackToAll();
+        expect(axios.post).toHaveBeenCalledTimes(2);
+    });
+});
+
+describe('Info only', async () => {
+    beforeAll(() => {
+        process.env.SLACK_LEVEL=3;
+        jest.clearAllMocks();
+    });
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
 
     it ('should log up to info only', async () => {
-        console.log("TEST DEBUG: about to test info only")
-        process.env.SLACK_LEVEL=3;
-        slackToAll();
+        await slackToAll();
         expect(axios.post).toHaveBeenCalledTimes(4);
     });
-    it ('should log up to debug', async () => {
-        console.log("TEST DEBUG: about to test debug only")
+
+    it ('should log up to info only, with just title, no args', async () => {
+        await slackInfo("just title");
+        expect(axios.post).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('Debug only', () => {
+    beforeAll(() => {
         process.env.SLACK_LEVEL=4;
+        jest.clearAllMocks();
+    });
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it ('should log up to debug', async () => {
         await slackToAll();
         expect(axios.post).toHaveBeenCalledTimes(4);
     });
-    it ('should log all', async () => {
-        console.log("TEST DEBUG: about to test trace only")
+});
+
+describe('Trace (ALL)', () => {
+    beforeAll(() => {
         process.env.SLACK_LEVEL=5;
+        jest.clearAllMocks();
+    });
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it ('should log all', async () => {
         await slackToAll();
-        expect(axios.post).toHaveBeenCalledTimes(4);
+        expect(axios.post).toHaveBeenCalledTimes(5);
     });
 });

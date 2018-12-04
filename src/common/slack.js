@@ -16,8 +16,7 @@ const SLACK_DISABLED=0;
 // posts the given "Slack formatted" message to the known inbound we
 const postToSlack = async (slackMsg) => {
     try {
-        const slackWebhook = await getSlackWebHookSecret();
-
+        const slackWebhook = await getSlackWebHookSecret()
         const apiResponse = await axios.post(
             slackWebhook.webhook,
             slackMsg,       // the data
@@ -26,21 +25,19 @@ const postToSlack = async (slackMsg) => {
                     'Content-Type': 'application/json',
                 }
             });
-
     } catch (err) {
         // silently discard errors
         logError("Failed to post to Slack: ", err);
     }
-
 }
 
 // check current Slack log level and only then, post to slack
-const logToSlack = (level, slackMsg) => {
+const logToSlack = async (level, slackMsg) => {
     // default to logging errors only; 0 disables logging
     const ENV_LOG_LEVEL = process.env.SLACK_LEVEL || SLACK_DISABLED;
 
     if (level <= ENV_LOG_LEVEL) {
-        postToSlack(slackMsg);
+        await postToSlack(slackMsg);
     }
 };
 
@@ -55,10 +52,10 @@ const formatArguments = (...theArgs) => {
         return '```' + util.inspect(theArgs[0][0], { depth: null}) + '```\n';;
     } else {
         return theArgs[0].reduce((previous, current) => {
-            if (typeof previous !== 'string') {
-                // then the first argument was an object
-                previous = '```' + util.inspect(previous, { depth: null}) + '```\n';
-            }
+            // if (typeof previous !== 'string') {
+            //     // then the first argument was an object
+            //     previous = '```' + util.inspect(previous, { depth: null}) + '```\n';
+            // }
 
             if (! previous.endsWith('\n')) {
                 // then first argument was a string
@@ -77,9 +74,9 @@ const formatArguments = (...theArgs) => {
 };
 
 // info is green
-export const slackInfo = (title, ...theArgs) => {
+export const slackInfo = async (title, ...theArgs) => {
     // logInfo(...theArgs);
-    logToSlack(SLACK_INFO, {
+    await logToSlack(SLACK_INFO, {
         text: `INFO`,
         username: 'markdownbot',
         markdwn: true,
@@ -87,15 +84,15 @@ export const slackInfo = (title, ...theArgs) => {
             {
                 color: 'good',
                 title,
-                text: formatArguments(theArgs)
+                text: theArgs ? formatArguments(theArgs) : ''
             }
         ]
     });
 }
 
-export const slackWarn = (title, ...theArgs) => {
+export const slackWarn = async (title, ...theArgs) => {
     // logWarn(...theArgs);
-    logToSlack(SLACK_INFO, {
+    await logToSlack(SLACK_WARN, {
         text: `WARNING`,
         username: 'markdownbot',
         markdwn: true,
@@ -109,9 +106,9 @@ export const slackWarn = (title, ...theArgs) => {
     });
 }
 
-export const slackError = (title, ...theArgs) => {
+export const slackError = async (title, ...theArgs) => {
     // logError(...theArgs);
-    logToSlack(SLACK_ERROR, {
+    await logToSlack(SLACK_ERROR, {
         text: `ERROR`,
         username: 'markdownbot',
         markdwn: true,
@@ -125,9 +122,9 @@ export const slackError = (title, ...theArgs) => {
     });
 }
 
-export const slackTrace = (title, ...theArgs) => {
+export const slackTrace = async (title, ...theArgs) => {
     // logTrace(theArgs);
-    logToSlack(SLACK_TRACE, {
+    await logToSlack(SLACK_TRACE, {
         text: `TRACE`,
         username: 'markdownbot',
         markdwn: true,
@@ -141,8 +138,8 @@ export const slackTrace = (title, ...theArgs) => {
     });
 }
 
-export const slackRequest = (title, intent, destination) => {
-    logToSlack(SLACK_INFO, {
+export const slackRequest = async (title, intent, destination) => {
+    await logToSlack(SLACK_INFO, {
         text: `Request`,
         username: 'markdownbot',
         markdwn: true,
