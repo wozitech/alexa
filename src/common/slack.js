@@ -57,10 +57,10 @@ const formatArguments = (...theArgs) => {
             //     previous = '```' + util.inspect(previous, { depth: null}) + '```\n';
             // }
 
-            if (! previous.endsWith('\n')) {
-                // then first argument was a string
-                previous += '\n';
-            }
+            // if (! previous.endsWith('\n')) {
+            //     // then first argument was a string
+            //     previous += '\n';
+            // }
     
             if (typeof current === 'object') {
                 previous += '```' + util.inspect(current, { depth: null}) + '```\n';
@@ -84,7 +84,7 @@ export const slackInfo = async (title, ...theArgs) => {
             {
                 color: 'good',
                 title,
-                text: theArgs ? formatArguments(theArgs) : ''
+                text: theArgs
             }
         ]
     });

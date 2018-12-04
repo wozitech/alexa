@@ -31,7 +31,7 @@ const slackToAll = async () => {
     await slackInfo("My Info", "one", { two: false}, "three");
     await slackTrace("My Trace", "one", "two");
 };
-
+ 
 describe('Slack logging error checks', async () => {
     beforeAll(() => {
         process.env.LOG_LEVEL=1;    // this is to force the writing of logError
@@ -100,6 +100,10 @@ describe('Errors only', () => {
         await slackToAll();
         expect(axios.post).toHaveBeenCalledTimes(1);
     });
+    it ('should log up to error only, with just title, no args', async () => {
+        await slackError("just title");
+        expect(axios.post).toHaveBeenCalledTimes(1);
+    });
 });
 
 describe('Warnings only', () => {
@@ -114,6 +118,10 @@ describe('Warnings only', () => {
     it ('should log up to warnings only', async () => {
         await slackToAll();
         expect(axios.post).toHaveBeenCalledTimes(2);
+    });
+    it ('should log up to warnings only, with just title, no args', async () => {
+        await slackWarn("just title");
+        expect(axios.post).toHaveBeenCalledTimes(1);
     });
 });
 
@@ -130,7 +138,6 @@ describe('Info only', async () => {
         await slackToAll();
         expect(axios.post).toHaveBeenCalledTimes(4);
     });
-
     it ('should log up to info only, with just title, no args', async () => {
         await slackInfo("just title");
         expect(axios.post).toHaveBeenCalledTimes(1);
@@ -150,6 +157,7 @@ describe('Debug only', () => {
         await slackToAll();
         expect(axios.post).toHaveBeenCalledTimes(4);
     });
+    // Note - no SlackDebug to test
 });
 
 describe('Trace (ALL)', () => {
@@ -164,5 +172,9 @@ describe('Trace (ALL)', () => {
     it ('should log all', async () => {
         await slackToAll();
         expect(axios.post).toHaveBeenCalledTimes(5);
+    });
+    it ('should log up to trace, with just title, no args', async () => {
+        await slackTrace("just title");
+        expect(axios.post).toHaveBeenCalledTimes(1);
     });
 });
