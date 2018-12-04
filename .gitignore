@@ -5,6 +5,9 @@ jspm_packages
 # Serverless directories
 .serverless
 
+# project files
 lib/**
-
 coverage/**
+
+# personal data
+resources/myBusData.json
