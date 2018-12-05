@@ -6,9 +6,6 @@ import axios from 'axios';
 
 // add mocks
 jest.mock('axios');
-// axios.post.mockReturnValue({
-//     status: 200
-// });
 axios.post.mockResolvedValue({
     status: 201
 });
