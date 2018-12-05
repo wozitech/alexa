@@ -5,6 +5,7 @@
 // https://api.tfl.gov.uk/StopPoint/<stop point id>/Arrivals?app_key=<app key>&app_id=<app id>
 
 import axios from 'axios';
+import { getMyBusData } from './myBusData';
 
 const MAX_NUM_RESULTS = 3;
 const TFL_API_ENDPOINT = 'https://api.tfl.gov.uk';
@@ -19,8 +20,11 @@ const TO_CLAPHAM_STOP_POINT = {
 };
 
 export const nextBusTo = async (destination, tflApiDetails) => {
-    var apiEndpoint = TFL_API_STOP_POINT_ENDPOINT;
-    var filterLineBy = null;    // must be a string for filter comparison to work
+    let apiEndpoint = TFL_API_STOP_POINT_ENDPOINT;
+    let filterLineBy = null;    // must be a string for filter comparison to work
+
+    const myBusData = getMyBusData();
+    //console.log("WA DEBUG: my imported bus data: ", myBusData);
 
     switch (destination.toLowerCase()) {
         case 'clapham':

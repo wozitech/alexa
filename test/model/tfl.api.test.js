@@ -3,6 +3,8 @@ import axios from 'axios';
 import { executionAsyncId } from 'async_hooks';
 jest.mock('axios');
 
+import { getMyBusData } from '../../src/model/myBusData';
+jest.mock('../../src/model/myBusData');
 
 // the expected good return value; includes set of entities not in time sequence,
 //  but also some unexpected entities

@@ -1,0 +1,26 @@
+[
+    {
+        "destination" : "Clapham",
+        "line" : "111",
+        "walkTime" : 30,
+        "stopPoint" : "848986968H3"
+    },
+    {
+        "destination" : "Brixton",
+        "line" : "11",
+        "walkTime" : 60,
+        "stopPoint" : "738383G6467E"
+    },
+    {
+        "destination" : "Vaxuhall",
+        "line" : "8",
+        "walkTime" : 180,
+        "stopPoint" : "738383G6467E"
+    },
+    {
+        "destination" : "Mythical Land",
+        "line" : "000",
+        "walkTime" : 60,
+        "stopPoint" : "10039549696093"
+    }
+]
