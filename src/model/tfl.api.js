@@ -6,6 +6,7 @@
 
 import axios from 'axios';
 import { getMyBusData } from './myBusData';
+import { logDebug, logTrace } from '../common/logger';
 
 const MAX_NUM_RESULTS = 3;
 const TFL_API_ENDPOINT = 'https://api.tfl.gov.uk';
@@ -23,63 +24,36 @@ export const nextBusTo = async (destination, tflApiDetails) => {
     let apiEndpoint = TFL_API_STOP_POINT_ENDPOINT;
     let filterLineBy = null;    // must be a string for filter comparison to work
 
+    // forced testing
+    destination = 'Norwood Junction';
+
     const myBusData = getMyBusData();
     //console.log("WA DEBUG: my imported bus data: ", myBusData);
+    const foundDestination = myBusData.find((thisDestination) => {
+        return thisDestination.destination.toLowerCase() === destination.toLowerCase();
+    });
 
-    switch (destination.toLowerCase()) {
-        case 'clapham':
-            apiEndpoint += `/${TO_CLAPHAM_STOP_POINT.stopPointId}/Arrivals`;
-            filterLineBy = 417;
-            break;
-
-        case 'crystal palace':
-            apiEndpoint += `/${TO_CRYSTAL_PALACE_STOP_POINT.stopPointId}/Arrivals`;
-            filterLineBy = '417';
-            break;
-
-        // this destination forces an error in TFL API
-        case 'mythical land':
-            apiEndpoint += `/10039549696093/AAAAArrivals`;
-            filterLineBy = '000';
-            break;
-        
-        default:
-            apiEndpoint = null;
-    }
-
-    if (typeof filterLineBy === 'number') {
-        filterLineBy = filterLineBy.toString();
-    }
-
-    var nextBusResponse = {
-        endpoint: apiEndpoint === null ? 'null' : apiEndpoint,
-        status: 200
-    };
-
-    if (apiEndpoint) {
+    if (foundDestination) {
         try {
-            const apiResponse = await axios.get(apiEndpoint, {
+            const apiUrl = `${TFL_API_STOP_POINT_ENDPOINT}/${foundDestination.stopPoint}/Arrivals`;
+            logTrace("tfl.api::nextBusTo - About to call upon TFL API with url", apiUrl);
+            const apiResponse = await axios.get(apiUrl, {
                 params: {
                     app_key: tflApiDetails.tfl_api_app_key,
                     app_id: tflApiDetails.tfl_api_app_id
                 }
             });
-            nextBusResponse.status = apiResponse.status;
-            nextBusResponse.route = filterLineBy;
-            //console.log("DEBUG tfl.api::nextBusTo: RESP: ", apiResponse);
+            logTrace("tfl.api::nextBusTo API Response", apiResponse);
 
             const nextArrivals = [];
-
             if ([200,201].includes(apiResponse.status) &&
                 typeof apiResponse.data !== 'undefined') {
                 apiResponse.data.forEach(thisEntity => {
-                    //console.log("DEBUG: this entity: ", thisEntity);
-    
                     // must be a bus
                     if (typeof thisEntity.expectedArrival !== 'undefined' &&
                         typeof thisEntity.lineName  !== 'undefined' &&
                         typeof thisEntity.modeName  !== 'undefined' &&
-                        thisEntity.lineName === filterLineBy &&
+                        thisEntity.lineName === foundDestination.line.toString() &&
                         thisEntity.modeName === 'bus') {
     
                         nextArrivals.push(thisEntity.expectedArrival)
@@ -91,13 +65,27 @@ export const nextBusTo = async (destination, tflApiDetails) => {
 
                 // and now ensure there are no more than just three results
                 nextArrivals.splice(3, nextArrivals.length-MAX_NUM_RESULTS);
-                nextBusResponse.arrivals = nextArrivals;
             }
+
+            const response = {
+                status: apiResponse.status,
+                route: foundDestination.line.toString(),
+                walkingTime: foundDestination.walkTime,
+                arrivals: nextArrivals
+            };
+            logDebug("tfl.api::nextBusTo to return", response);
+
+            return response;
 
         } catch (err) {
             //console.error("DEBUG: err: ", err);
             nextBusResponse.status = err.response.statusCode;
             nextBusResponse.err = err.response.statusText;
+        }
+    } else {
+        return {
+            endpoint: 'null',
+            status: 500
         }
     }
 
