@@ -28,7 +28,7 @@ nextTime.setMinutes(nextTime.getMinutes() + 5);
 lastTime.setMinutes(lastTime.getMinutes() + 10);
 
 TFL.nextBusTo = nextBusToMock;
-nextBusToMock.mockReturnValue({
+nextBusToMock.mockResolvedValue({
     status: 200,
     route: 417,
     endpoint: 'https://mocked/endpoint',
@@ -40,10 +40,24 @@ nextBusToMock.mockReturnValue({
 });
 
 MySecrets.getTflApiSecret = getTflApiSecretMock;
-MySecrets.getSlackWebHookSecret = getSlackWebHookSecretMock;
-getSlackWebHookSecretMock.mockReturnValue({
-    webhook : 'https://webhook'
+getTflApiSecretMock.mockImplementation(() => {
+    return Promise.resolve({
+        tfl_api_app_id: '123',
+        tfl_api_app_key: '345'
+    });
 });
+MySecrets.getSlackWebHookSecret = getSlackWebHookSecretMock;
+getSlackWebHookSecretMock.mockImplementation(() => {
+    return Promise.resolve({
+        webhook: 'https://my.webhook.slack.com'
+    });
+});
+
+global.console = {
+    error: jest.fn(),
+    warn: jest.fn(),
+    log: jest.fn()
+}
 
 Slack.slackError = jest.fn();
 Slack.slackInfo = jest.fn();
@@ -249,11 +263,81 @@ const goodIntentWithGivenButUnknownDestinationExampleEvent = {
 };
 
 describe('The myBuses handler', () => {
-    process.env.SLACK_WEBHOOK = 'SLACK_MY_BUSES';
-    process.env.LOG_LEVEL = 5;
-    process.env.SLACK_LEVEL = 5;
 
-    describe('Calling the handler', () => {
+    describe('Handling errors', () => {
+        process.env.SLACK_WEBHOOK = 'SLACK_MY_BUSES';
+        process.env.LOG_LEVEL = 1;  // expecting error to be logged
+        process.env.SLACK_LEVEL = 0;
+
+        beforeAll(() => {
+            jest.clearAllMocks();
+        });
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+
+        const theEvent = {
+            "session": alexaSkillDefaultSession
+        };
+        const theContext = {
+            invokedFunctionArn : 'arn:aws:lambda:eu-west-1:accountid:function:wozitech-alexa-skills-dev-myBuses'
+        };
+        const mockCallback = jest.fn();
+    
+        it ('should silently handle when an exception is thrown in secrets', async () => {
+            process.env.TFL_API_SECRET_ID = tflApiEnv;
+            getTflApiSecretMock.mockRejectedValueOnce(new Error('One time exception in TFP API Secret'));
+
+            const returnVal = await handler(whenIsAlexaExampleEvent, theContext, (err, data) => {
+                expect(getTflApiSecretMock).toHaveBeenCalledTimes(1);
+                expect(nextBusToMock).not.toHaveBeenCalled();
+                expect(global.console.log).toHaveBeenCalledTimes(1);
+
+                // expecting a proper format AlexaSkills response
+                expect(data.version).toEqual('1.0');
+
+                expect(data.response.outputSpeech).toBeDefined();
+                expect(data.response.outputSpeech.type).toEqual('PlainText');
+                expect(data.response.outputSpeech.text).toEqual('Bus information is unavailable');
+
+                // we satisfy the intent in full, end of dialog
+                expect(data.response.shouldEndSession).toEqual(true);
+                expect(data.sessionAttributes).toEqual({});
+            });
+        });
+ 
+        it ('should silently handle when an exception is thrown in API', async () => {
+            process.env.TFL_API_SECRET_ID = tflApiEnv;
+            nextBusToMock.mockRejectedValueOnce(new Error('One time exception in TfL API'));
+
+            const returnVal = await handler(whenIsAlexaExampleEvent, theContext, (err, data) => {
+                expect(getTflApiSecretMock).toHaveBeenCalledTimes(1);
+                expect(nextBusToMock).toHaveBeenCalledTimes(1);
+                expect(global.console.log).toHaveBeenCalledTimes(1);
+
+                // expecting a proper format AlexaSkills response
+                expect(data.version).toEqual('1.0');
+
+                expect(data.response.outputSpeech).toBeDefined();
+                expect(data.response.outputSpeech.type).toEqual('PlainText');
+                expect(data.response.outputSpeech.text).toEqual('Bus information is unavailable');
+
+                // we satisfy the intent in full, end of dialog
+                expect(data.response.shouldEndSession).toEqual(true);
+                expect(data.sessionAttributes).toEqual({});
+            });
+        });
+    });
+    
+/* 
+    describe('expected responses', () => {
+        process.env.SLACK_WEBHOOK = 'SLACK_MY_BUSES';
+        process.env.LOG_LEVEL = 0;
+        process.env.SLACK_LEVEL = 0;
+
+        beforeAll(() => {
+            jest.clearAllMocks();
+        });
         afterEach(() => {
             jest.clearAllMocks();
         });
@@ -266,42 +350,28 @@ describe('The myBuses handler', () => {
         };
         const mockCallback = jest.fn();
 
-        it('should return exception when env var TFL_API_SECRET_ID is undefined ', async () => {
-            try {
-                await handler(theEvent, theContext, mockCallback);
-            } catch (err) {
-                expect(err).toEqual(new Error('Missing env variable for TFL_API_SECRET_ID'));
-            }
+        it ('should silently handle error when the event has no intent', async () => {
+            const returnVal = await handler(whenIsAlexaExampleEvent, theContext, (err, data) => {
+                // trapping of intent comes before any TFL API lookup
+                expect(getTflApiSecretMock).toHaveBeenCalled();
+
+                // expecting a proper format AlexaSkills response
+                expect(data.version).toEqual('1.0');
+
+                // speech is returned
+                expect(data.response.outputSpeech).toBeDefined();
+                expect(data.response.outputSpeech.type).toEqual('PlainText');
+                expect(data.response.outputSpeech.text).toEqual('Where do you need to be?');
+
+                // with no intent, we assume the skill is opening, so a conversation will incur
+                expect(data.response.shouldEndSession).toEqual(false);
+                expect(data.sessionAttributes).toEqual({
+                    sessionId: alexaSkillDefaultSession.sessionId,
+                    application: alexaSkillDefaultSession.application,
+                    user: alexaSkillDefaultSession.user
+                });
+            });
         });
-
-        // it ('should silently handle error when the event has no intent', async () => {
-        //     process.env.TFL_API_SECRET_ID = tflApiEnv;
-        //     getTflApiSecretMock.mockImplementationOnce(() => {
-        //         throw new Error('Why does this not work?');
-        //     });
-        //     getTflApiSecretMock.mockRejectedValueOnce(new Error('Why does this not work?'));
-
-        //     const returnVal = await handler(theEvent, theContext, (err, data) => {
-        //         // trapping of intent comes before any TFL API lookup
-        //         expect(getTflApiSecretMock).not.toHaveBeenCalled();
-
-        //         // expecting a proper format AlexaSkills response
-        //         expect(data.version).toEqual('1.0');
-
-        //         // speech is returned
-        //         expect(data.response.outputSpeech).toBeDefined();
-        //         expect(data.response.outputSpeech.type).toEqual('PlainText');
-        //         expect(data.response.outputSpeech.text).toEqual('Where do you need to be?');
-
-        //         // with no intent, we assume the skill is opening, so a conversation will incur
-        //         expect(data.response.shouldEndSession).toEqual(false);
-        //         expect(data.sessionAttributes).toEqual({
-        //             sessionId: alexaSkillDefaultSession.sessionId,
-        //             application: alexaSkillDefaultSession.application,
-        //             user: alexaSkillDefaultSession.user
-        //         });
-        //     });
-        // });
 
         it('should call the handler with success but handle a missing destination', async () => {
             process.env.TFL_API_SECRET_ID = tflApiEnv;
@@ -328,48 +398,7 @@ describe('The myBuses handler', () => {
                     user: alexaSkillDefaultSession.user
                 });
             });
-        });
-
-        /* it ('should silently handle when an exception is thrown in secrets', async () => {
-            delete process.env.TFL_API_SECRET_ID;
-
-console.log("TEST DEBUG: want to throw exception in getTflApiSecret")
-            const returnVal = await handler(whenIsAlexaExampleEvent, theContext, (err, data) => {
-                expect(getTflApiSecretMock).toHaveBeenCalledWith('eu-west-1');
-
-                // expecting a proper format AlexaSkills response
-                expect(data.version).toEqual('1.0');
-
-                expect(data.response.outputSpeech).toBeDefined();
-                expect(data.response.outputSpeech.type).toEqual('PlainText');
-                expect(data.response.outputSpeech.text).toEqual('Bus information is unavailable');
-
-                // we satisfy the intent in full, end of dialog
-                expect(data.response.shouldEndSession).toEqual(true);
-                expect(data.sessionAttributes).toEqual({});
-            });
-        });
- 
-        it ('should silently handle when an exception is thrown in API', async () => {
-            process.env.TFL_API_SECRET_ID = tflApiEnv;
-
-console.log("TEST DEBUG: want to throw exception in nextBusTo")
-            const returnVal = await handler(whenIsAlexaExampleEvent, theContext, (err, data) => {
-                expect(getTflApiSecretMock).toHaveBeenCalledWith('eu-west-1');
-
-                // expecting a proper format AlexaSkills response
-                expect(data.version).toEqual('1.0');
-
-                expect(data.response.outputSpeech).toBeDefined();
-                expect(data.response.outputSpeech.type).toEqual('PlainText');
-                expect(data.response.outputSpeech.text).toEqual('Bus information is unavailable');
-
-                // we satisfy the intent in full, end of dialog
-                expect(data.response.shouldEndSession).toEqual(true);
-                expect(data.sessionAttributes).toEqual({});
-            });
-        });
-  */
+        });  
 
         it('should call the handler with success for whenIs intent', async () => {
             process.env.TFL_API_SECRET_ID = tflApiEnv;
@@ -527,5 +556,5 @@ console.log("TEST DEBUG: want to throw exception in nextBusTo")
         });
 
     });
-
+ */
 });

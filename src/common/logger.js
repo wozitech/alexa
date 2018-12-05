@@ -17,7 +17,7 @@ const logToConsole = (level, ...args) => {
     if (level <= ENV_LOG_LEVEL) {
         switch (level) {
             case LOG_ERROR:
-                console.log("DEBUG: ", args);
+                console.log("ERROR: ", args);
                 break;
             case LOG_WARN:
                 console.log("WARNING: ", args);
