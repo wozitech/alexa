@@ -24,9 +24,6 @@ export const nextBusTo = async (destination, tflApiDetails) => {
     let apiEndpoint = TFL_API_STOP_POINT_ENDPOINT;
     let filterLineBy = null;    // must be a string for filter comparison to work
 
-    // forced testing
-    destination = 'Norwood Junction';
-
     const myBusData = getMyBusData();
     //console.log("WA DEBUG: my imported bus data: ", myBusData);
     const foundDestination = myBusData.find((thisDestination) => {

@@ -115,7 +115,8 @@ export const handler = async (event, context, callback) => {
       const actualResponse = returnScheduledBusesResponse(parsedRequest.destination,
                                                           parsedRequest.intent,
                                                           nextBuses.route,
-                                                          nextBuses.arrivals);
+                                                          nextBuses.arrivals,
+                                                          nextBuses.walkingTime);
       logInfo("Successful intent and destination: ", actualResponse);
       slackInfo(slackTitle, "Successful intent and destination", actualResponse);
 

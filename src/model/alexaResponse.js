@@ -186,7 +186,7 @@ export const returnSkillOpenedResponse = (session) => {
 
 // this returns an AlexaSkills response, choosing between the more specific of whenIs (time) or howLong (duration) speach
 // TODO: multiple language support
-export const returnScheduledBusesResponse = (destination, intent, route, arrivals) => {
+export const returnScheduledBusesResponse = (destination, intent, route, arrivals, walkingTime) => {
     const skillResponse = {
       version: "1.0",
       response: {
@@ -211,10 +211,10 @@ export const returnScheduledBusesResponse = (destination, intent, route, arrival
 
     switch (intent) {
         case WHEN_IS_INTENT:
-            skillResponse.response.outputSpeech.text = formatWhenIsResponse(preambleSpeach, arrivals);
+            skillResponse.response.outputSpeech.text = formatWhenIsResponse(preambleSpeach, arrivals, walkingTime);
             break;
         case HOW_LONG_INTENT:
-            skillResponse.response.outputSpeech.text = formatHowToResponse(preambleSpeach, arrivals);
+            skillResponse.response.outputSpeech.text = formatHowToResponse(preambleSpeach, arrivals, walkingTime);
             break;
         default:
             skillResponse.response.outputSpeech.text = 'Sorry, I don\'t understand what you are asking me.';
@@ -225,7 +225,7 @@ export const returnScheduledBusesResponse = (destination, intent, route, arrival
 
 // this specifically formats the AlexaSkills text as required of 'whenIs' intent;
 //  namely, returns speach based on time of schedule
-const formatWhenIsResponse = (preamble, arrivals) => {
+const formatWhenIsResponse = (preamble, arrivals, walkingTime) => {
     let speachResponse = preamble + ' ';
     const currentTimestamp = (new Date()).getTime();
 
@@ -234,9 +234,8 @@ const formatWhenIsResponse = (preamble, arrivals) => {
     arrivals.forEach( (thisArrival, index) => {
         const thisArrivalDate = new Date(thisArrival);
 
-        // must be at least one minute (TODO: should be at least the time taken to walk to the stop)
-        const minimumTimeDiff = 60*1000; // 60 second * 1000 milliseconds
-        if ((thisArrivalDate.getTime() - currentTimestamp) > 0) {
+        const minimumTimeDiff = walkingTime*1000; // 60 second * 1000 milliseconds
+        if ((thisArrivalDate.getTime() - currentTimestamp) > minimumTimeDiff) {
             if (actualArrrivalIndex==0) {
                 speachResponse += 'first ';
             } else if (actualArrrivalIndex < totalArrivals) {
@@ -250,8 +249,6 @@ const formatWhenIsResponse = (preamble, arrivals) => {
             speachResponse += thisArrivalTime;
             actualArrrivalIndex++;
     
-        } else {
-            //totalArrivals--;
         }
     });
 
@@ -260,7 +257,7 @@ const formatWhenIsResponse = (preamble, arrivals) => {
 
 // this specifically formats the AlexaSkills text as required of 'howLong' intent;
 //  namely, returns speach based on duration from now
-const formatHowToResponse = (preamble, arrivals) => {
+const formatHowToResponse = (preamble, arrivals, walkingTime) => {
     let speachResponse = preamble + ' in ';
     const currentTimestamp = (new Date()).getTime();
 
@@ -268,9 +265,9 @@ const formatHowToResponse = (preamble, arrivals) => {
     let totalArrivals = arrivals.length-1;
     arrivals.forEach( (thisArrival, index) => {
         const thisArrivalDate = new Date(thisArrival);
-        const timeInMinutes = Math.floor((thisArrivalDate.getTime() - currentTimestamp) / 1000 / 60);
-        
-        if (timeInMinutes > 1) {
+        const timeDiffInSeconds = Math.floor((thisArrivalDate.getTime() - currentTimestamp) / 1000);
+
+        if (timeDiffInSeconds > walkingTime) {
             if (actualArrrivalIndex==0) {
                 speachResponse += '';
             } else if (actualArrrivalIndex < totalArrivals) {
@@ -279,10 +276,8 @@ const formatHowToResponse = (preamble, arrivals) => {
                 speachResponse += ' and finally ';
             }
 
-            speachResponse += `${timeInMinutes} minutes`;
+            speachResponse += `${Math.floor(timeDiffInSeconds / 60)} minutes`;
             actualArrrivalIndex++;
-        } else {
-            //totalArrivals--;
         }
     });
 
