@@ -291,7 +291,7 @@ describe('The myBuses handler', () => {
             const returnVal = await handler(whenIsAlexaExampleEvent, theContext, (err, data) => {
                 expect(getTflApiSecretMock).toHaveBeenCalledTimes(1);
                 expect(nextBusToMock).not.toHaveBeenCalled();
-                expect(global.console.log).toHaveBeenCalledTimes(1);
+                //expect(global.console.log).toHaveBeenCalledTimes(1);
 
                 // expecting a proper format AlexaSkills response
                 expect(data.version).toEqual('1.0');
@@ -313,7 +313,7 @@ describe('The myBuses handler', () => {
             const returnVal = await handler(whenIsAlexaExampleEvent, theContext, (err, data) => {
                 expect(getTflApiSecretMock).toHaveBeenCalledTimes(1);
                 expect(nextBusToMock).toHaveBeenCalledTimes(1);
-                expect(global.console.log).toHaveBeenCalledTimes(1);
+                //expect(global.console.log).toHaveBeenCalledTimes(1);
 
                 // expecting a proper format AlexaSkills response
                 expect(data.version).toEqual('1.0');
@@ -329,7 +329,7 @@ describe('The myBuses handler', () => {
         });
     });
     
-/* 
+
     describe('expected responses', () => {
         process.env.SLACK_WEBHOOK = 'SLACK_MY_BUSES';
         process.env.LOG_LEVEL = 0;
@@ -351,9 +351,12 @@ describe('The myBuses handler', () => {
         const mockCallback = jest.fn();
 
         it ('should silently handle error when the event has no intent', async () => {
-            const returnVal = await handler(whenIsAlexaExampleEvent, theContext, (err, data) => {
+            const noIntentEvent = JSON.parse(JSON.stringify(whenIsAlexaExampleEvent));
+            delete noIntentEvent.request.intent;
+
+            const returnVal = await handler(noIntentEvent, theContext, (err, data) => {
                 // trapping of intent comes before any TFL API lookup
-                expect(getTflApiSecretMock).toHaveBeenCalled();
+                expect(getTflApiSecretMock).not.toHaveBeenCalled();
 
                 // expecting a proper format AlexaSkills response
                 expect(data.version).toEqual('1.0');
@@ -556,5 +559,5 @@ describe('The myBuses handler', () => {
         });
 
     });
- */
+
 });

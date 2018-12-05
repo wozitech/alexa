@@ -1,5 +1,6 @@
 'use strict';
 
+import assert from 'assert';
 import { getTflApiSecret } from '../aws/secrets';
 import { nextBusTo } from '../model/tfl.api';
 import { returnUnknownDestinationResponse,
@@ -122,9 +123,7 @@ export const handler = async (event, context, callback) => {
     }
 
     // gets here without a callback - that is bad
-    logError("unexpected logic", event);
-    slackError(slackTitle, "unexpected logic");
-    return callback("unexpected logic", null);
+    assert.fail();
 
   } else {
     // no intent given, user has simply opened the skill

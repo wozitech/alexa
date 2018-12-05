@@ -27,6 +27,7 @@
   "author": "Warren Ayling",
   "license": "ISC",
   "dependencies": {
+    "assert": "^1.4.1",
     "axios": "^0.18.0",
     "dateformat": "^3.0.3",
     "uuid": "^3.3.2"
