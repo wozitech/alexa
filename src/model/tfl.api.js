@@ -17,7 +17,6 @@ export const nextBusTo = async (destination, tflApiDetails) => {
     let filterLineBy = null;    // must be a string for filter comparison to work
 
     const myBusData = getMyBusData();
-    //console.log("WA DEBUG: my imported bus data: ", myBusData);
     const foundDestination = myBusData.find((thisDestination) => {
         return thisDestination.destination.toLowerCase() === destination.toLowerCase();
     });
