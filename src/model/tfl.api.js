@@ -11,14 +11,6 @@ import { logDebug, logTrace } from '../common/logger';
 const MAX_NUM_RESULTS = 3;
 const TFL_API_ENDPOINT = 'https://api.tfl.gov.uk';
 const TFL_API_STOP_POINT_ENDPOINT = `${TFL_API_ENDPOINT}/StopPoint`;
-const TO_CRYSTAL_PALACE_STOP_POINT = {
-    stopPointId: '490013686E',
-    route: '417'
-};
-const TO_CLAPHAM_STOP_POINT = {
-    stopPointId: '490010452W2',
-    route: '417'
-};
 
 export const nextBusTo = async (destination, tflApiDetails) => {
     let apiEndpoint = TFL_API_STOP_POINT_ENDPOINT;
@@ -31,8 +23,8 @@ export const nextBusTo = async (destination, tflApiDetails) => {
     });
 
     if (foundDestination) {
+        const apiUrl = `${TFL_API_STOP_POINT_ENDPOINT}/${foundDestination.stopPoint}/Arrivals`;
         try {
-            const apiUrl = `${TFL_API_STOP_POINT_ENDPOINT}/${foundDestination.stopPoint}/Arrivals`;
             logTrace("tfl.api::nextBusTo - About to call upon TFL API with url", apiUrl);
             const apiResponse = await axios.get(apiUrl, {
                 params: {
@@ -65,6 +57,7 @@ export const nextBusTo = async (destination, tflApiDetails) => {
             }
 
             const response = {
+                endpoint: apiUrl,
                 status: apiResponse.status,
                 route: foundDestination.line.toString(),
                 walkingTime: foundDestination.walkTime,
@@ -75,9 +68,11 @@ export const nextBusTo = async (destination, tflApiDetails) => {
             return response;
 
         } catch (err) {
-            //console.error("DEBUG: err: ", err);
-            nextBusResponse.status = err.response.statusCode;
-            nextBusResponse.err = err.response.statusText;
+            return {
+                endpoint: apiUrl,
+                status: err.response.statusCode,
+                err: err.response.statusText
+            };
         }
     } else {
         return {
@@ -85,6 +80,4 @@ export const nextBusTo = async (destination, tflApiDetails) => {
             status: 500
         }
     }
-
-    return nextBusResponse;
 };

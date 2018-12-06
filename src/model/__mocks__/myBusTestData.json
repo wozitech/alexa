@@ -12,15 +12,9 @@
         "stopPoint" : "738383G6467E"
     },
     {
-        "destination" : "Vaxuhall",
+        "destination" : "Vauxhall",
         "line" : "8",
         "walkTime" : 180,
         "stopPoint" : "738383G6467E"
-    },
-    {
-        "destination" : "Mythical Land",
-        "line" : "000",
-        "walkTime" : 60,
-        "stopPoint" : "10039549696093"
     }
 ]
