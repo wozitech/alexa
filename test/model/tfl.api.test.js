@@ -14,32 +14,26 @@ axios.get.mockResolvedValue({
                 modeName: 'bus',
                 lineName: '111',    // lineName is a string!
                 expectedArrival: '2018-11-27T11:13:33Z',
-                walkTime: 10,
            },{
                 modeName: 'train',
                 lineName: '111',
                 expectedArrival: '2018-11-27T09:44:02Z',
-                walkTime: 20,
         },{
                 modeName: 'bus',
                 lineName: '219',
                 expectedArrival: '2018-11-27T09:41:17Z',
-                walkTime: 30,
         },{
                 modeName: 'bus',
                 lineName: '111',
                 expectedArrival: '2018-11-27T09:44:02Z',
-                walkTime: 40,
         },{
                 modeName: 'bus',
                 lineName: '111',
                 expectedArrival: '2018-11-27T11:19:05Z',
-                walkTime: 50,
         },{
                 modeName: 'bus',
                 lineName: '111',
                 expectedArrival: '2018-11-27T11:23:43Z',
-                walkTime: 60,
         }
     ]
 });
@@ -113,6 +107,7 @@ describe('The TFL API Model', () => {
             expect(expectedResults.status).toEqual(200);
             expect(expectedResults.endpoint).toEqual('https://api.tfl.gov.uk/StopPoint/848986968H3/Arrivals');
             expect(expectedResults.arrivals.length).toEqual(3);
+            expect(expectedResults.walkingTime).toEqual(30);
             expect(expectedResults.arrivals[0]).toEqual('2018-11-27T09:44:02Z');
         });
     });
