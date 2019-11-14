@@ -7,7 +7,7 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs10.x
   profile: serverless-admin
   region: ${self:custom.region}
   endpointType: REGIONAL
